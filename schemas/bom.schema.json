@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/bom.schema.json",
+  "title": "FSG Parametric BOM",
+  "description": "Step-1 schema for the thesis parametric BOM. Cost and mass are derived later and are intentionally not stored as authoritative input fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bom_id",
+    "vehicle_class",
+    "parts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "bom_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vehicle_class": {
+      "type": "string",
+      "enum": [
+        "FSE"
+      ]
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/part"
+      }
+    }
+  },
+  "$defs": {
+    "fastener": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fastener_id",
+        "quantity"
+      ],
+      "properties": {
+        "fastener_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "assembly_operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "time_min"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "time_min": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "raw_stock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stock_id",
+        "type"
+      ],
+      "properties": {
+        "stock_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "plate",
+            "sheet",
+            "bar",
+            "tube",
+            "casting_blank",
+            "additive_feedstock",
+            "catalog_item",
+            "other"
+          ]
+        },
+        "length_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "width_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "thickness_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "outer_diameter_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "inner_diameter_mm": {
+          "type": "number",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "finished_volume_mm3"
+      ],
+      "properties": {
+        "finished_volume_mm3": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "thickness_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "fillet_radius_mm": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "part": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "part_id",
+        "part_name",
+        "quantity",
+        "material_id",
+        "process_id",
+        "raw_stock",
+        "geometry",
+        "fasteners",
+        "assembly_operations"
+      ],
+      "properties": {
+        "part_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "part_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subsystem": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "process_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "raw_stock": {
+          "$ref": "#/$defs/raw_stock"
+        },
+        "geometry": {
+          "$ref": "#/$defs/geometry"
+        },
+        "fasteners": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fastener"
+          }
+        },
+        "assembly_operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assembly_operation"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

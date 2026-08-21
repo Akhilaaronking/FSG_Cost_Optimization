@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "bom_id": "PILOT_BOM_STEP1",
+  "vehicle_class": "FSE",
+  "parts": [
+    {
+      "part_id": "TEST_PART_001",
+      "part_name": "Dummy Suspension Bracket",
+      "subsystem": "Suspension",
+      "quantity": 2,
+      "material_id": "TEST_MATERIAL_01",
+      "process_id": "TEST_PROCESS_01",
+      "raw_stock": {
+        "stock_id": "TEST_STOCK_01",
+        "type": "plate",
+        "length_mm": 120,
+        "width_mm": 80,
+        "thickness_mm": 12
+      },
+      "geometry": {
+        "finished_volume_mm3": 30000,
+        "thickness_mm": 5
+      },
+      "fasteners": [
+        {
+          "fastener_id": "TEST_FASTENER_01",
+          "quantity": 4
+        }
+      ],
+      "assembly_operations": []
+    },
+    {
+      "part_id": "TEST_PART_002",
+      "part_name": "Dummy Electronics Mount",
+      "subsystem": "Electrical",
+      "quantity": 1,
+      "material_id": "TEST_MATERIAL_02",
+      "process_id": "TEST_PROCESS_02",
+      "raw_stock": {
+        "stock_id": "TEST_STOCK_02",
+        "type": "sheet",
+        "length_mm": 150,
+        "width_mm": 100,
+        "thickness_mm": 2
+      },
+      "geometry": {
+        "finished_volume_mm3": 18000,
+        "thickness_mm": 2
+      },
+      "fasteners": [],
+      "assembly_operations": []
+    }
+  ]
+}
