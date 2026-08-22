@@ -1,0 +1,28 @@
+rule_id,rule_category,affected_part_category,parameter_field,operator,limit_value,units,source_id,fsg_reference,deterministic,notes
+S_3.2.1,hard,CRD (all 3 documents),submission_timestamp,<=,event_handbook_deadline,date,FSG_RULES_2026,"S 3.2.1, p.112",True,
+S_3.3.1,hard,CRD package,document_set_present,==,"{BOM_CCBOM, SupportingMaterialFile_pdf, CostEmissionsExplanationFile_pdf}",set_membership,FSG_RULES_2026,"S 3.3.1, p.113",True,
+S_3.3.6,hard,CRD (all 3 documents),presented_vs_submitted_hash,==,identical,boolean,FSG_RULES_2026,"S 3.3.6, p.113",True,0 points for BOM Discussion if mismatched
+S_3.4.1,hard,BOM - all parts,sort_order,==,sorted,boolean,FSG_RULES_2026,"S 3.4.1, p.114",True,
+S_3.4.3,engineering,BOM - all parts,part_presence_vs_physical_vehicle,==,complete_match,boolean,FSG_RULES_2026,"S 3.4.3, p.114",False,Requires physical vehicle inspection by judge - not machine-checkable from BOM file alone
+S_3.4.5,interpretive,BOM - fastener/part boundary,item_classification,in,"{part, fastener}",category,FSG_RULES_2026,"S 3.4.5, p.114",False,Borderline cases (e.g. tape type) require human judgement
+S_3.4.6,hard,BOM - fasteners,self_manufactured,==,true -> classify_as_part,boolean,FSG_RULES_2026,"S 3.4.6, p.114",True,
+S_3.4.7,hard,BOM - all parts,system_assignment,in,"{Autonomous System, Brake System, Chassis and Body, Drivetrain, Engine and Tractive System, Grounded Low Voltage System, Miscellaneous Fit and Finish, Steering System, Suspension System, Wheels Wheel Bearings and Tires}",enum,FSG_RULES_2026,"S 3.4.7, p.114",True,
+S_3.4.8,interpretive,BOM - all parts,part_name_clarity,subjective_review,N/A,N/A,FSG_RULES_2026,"S 3.4.8, p.114",False,No ontology exists to machine-check name accuracy
+S_3.4.9,hard,BOM - all parts,unit_system,in,"{mm, kg, m3, EUR, ...metric_units}",unit_type,FSG_RULES_2026,"S 3.4.9, p.114",True,Pattern-matchable against a metric-units whitelist
+S_3.5.2,hard,CCBOM,system_covered,includes,Engine and Tractive System,system_name,FSG_RULES_2026,"S 3.5.2, p.115",True,
+S_3.5.3,engineering,CCBOM - all parts,cost_realism,subjective_review,N/A,N/A,FSG_RULES_2026,"S 3.5.3, p.115",False,Field presence is hard-checkable; whether values are realistic requires engineering judgement - this is what B2 sourcing supports
+S_3.5.4,hard,CCBOM - all parts,bought_or_made,in,"{bought, made}",enum,FSG_RULES_2026,"S 3.5.4, p.115",True,
+S_3.5.5,hard,CCBOM - all parts,part_breakdown_fields,includes,"{materials, processes, fasteners, tooling, overhead}",field_set,FSG_RULES_2026,"S 3.5.5, p.115",True,Maps directly to materials.csv/processes.csv/fasteners.csv schema
+S_3.5.6,engineering,CCBOM - made parts,part_specific_tooling_included,subjective_review,N/A,N/A,FSG_RULES_2026,"S 3.5.6, p.115",False,Requires judging whether tooling is genuinely part-specific vs generic
+S_3.5.7,hard,CCBOM - tooling costs,tool_type,not_in,"{hand_tool, power_tool}",category,FSG_RULES_2026,"S 3.5.7, p.115",True,
+S_3.5.8,engineering,CCBOM - bought parts,modification_scope,subjective_review,N/A,N/A,FSG_RULES_2026,"S 3.5.8, p.115",False,Judging whether a change constitutes a genuine modification requires engineering judgement
+S_3.5.9,engineering,CCBOM - modified bought parts,cost_boundary_of_modification,subjective_review,N/A,N/A,FSG_RULES_2026,"S 3.5.9, p.115",False,Correct cost/emissions boundary for modifications requires engineering judgement
+S_3.5.10,hard,CCBOM - bought parts,catalog_availability,==,true,boolean,FSG_RULES_2026,"S 3.5.10, p.115",True,Maps to source_register: is there a real supplier catalog entry?
+S_3.5.11,interpretive,CCBOM - all parts,cost_realism_standard,subjective_review,as_realistic_as_possible,N/A,FSG_RULES_2026,"S 3.5.11, p.115",False,"Judge-scored qualitative standard, no fixed threshold - drove our B2 real-sourcing approach since no official rate table exists"
+S_3.5.12,hard,CCBOM - all costs,currency,==,EUR,currency_code,FSG_RULES_2026,"S 3.5.12, p.115",True,"If non-EUR source used, exchange_rate_documented must also be true"
+S_3.5.13,hard,CCBOM - all parts,cost_ceiling,N/A,no_maximum,N/A,FSG_RULES_2026,"S 3.5.13, p.116",True,Trivially satisfied - no upper bound constraint exists
+S_3.5.14,hard,CCBOM - process rates,rate_calculation_shown,==,true,boolean,FSG_RULES_2026,"S 3.5.14, p.116",True,Maps to processes.csv notes column requirement
+S_3.5.15_to_18,engineering,CCBOM - carbon footprint (out of scope for cost work),lca_methodology,subjective_review,N/A,N/A,FSG_RULES_2026,"S 3.5.15-3.5.18, p.116",False,"LCA correctness requires domain expertise - out of scope for current cost-focused B-stages, flagged for awareness only"
+S_3.7.2,hard,Cost and Emissions Explanation File,cost_model_documented,==,true,boolean,FSG_RULES_2026,"S 3.7.2, p.116",True,Maps to provenance_notes.md and per-row notes approach
+S_3.8.3,hard,BOM - all parts,missing_items_count,==,0,count,FSG_RULES_2026,"S 3.8.3, p.116",True,Penalty scales with missing-item count down to 0 points
+DERIVED_QG_001,derived_quality_gate,"CCBOM - all parts (materials, processes, fasteners)",source_id,not_null_and_exists_in_register,N/A,N/A,,,True,"DERIVED SOFTWARE QUALITY GATE, NOT AN FSG RULE. Every material/process/fastener cost value used by the evaluator must have a non-null source_id that exists as a row in docs/source_register.csv. This is a proxy/internal check supporting S_3.5.11 (realistic costs) but is explicitly separate from it - S_3.5.11 itself remains interpretive/non-deterministic since 'realistic' has no fixed threshold and cannot be proven by this or any other automated check. This gate only verifies traceability (a source exists), not realism/correctness of the cost value itself. Passing this check is necessary but not sufficient for S_3.5.11 compliance."

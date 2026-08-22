@@ -1,0 +1,172 @@
+{
+  "stage": "B5",
+  "description": "FSG Rules 2026 v1.1, Section S3 (Cost and Manufacturing), classified into hard / engineering-soundness / interpretive constraints. Classification logic: HARD = binary, machine-checkable without judgement (a script can verify true/false). ENGINEERING-SOUNDNESS = requires domain judgement but has an objective basis that could be checked with more context/tools. INTERPRETIVE = subjective, judge-scored, not machine-checkable even in principle.",
+  "source_id": "FSG_RULES_2026",
+  "source_reference": "FS-Rules_2026_v1.1.pdf, Section S3 (Cost and Manufacturing), pages 112-116",
+  "classified_date": "2026-08-22",
+  "rules": [
+    {
+      "rule_id": "S_3.2.1",
+      "text": "Three CRD must be submitted to the competition website by the deadline specified in the Event Handbook.",
+      "classification": "hard",
+      "rationale": "Binary: submitted by deadline or not. Machine-checkable given a deadline and a submission timestamp."
+    },
+    {
+      "rule_id": "S_3.3.1",
+      "text": "The CRD consist of: the BOM (incl. CCBOM), the Supporting Material File (PDF), and the Cost and Emissions Explanation File (PDF).",
+      "classification": "hard",
+      "rationale": "Binary checklist of required documents - either all three exist or they don't."
+    },
+    {
+      "rule_id": "S_3.3.6",
+      "text": "The presented CRD must be identical to the submitted versions, otherwise 0 points will be scored for BOM Discussion.",
+      "classification": "hard",
+      "rationale": "Binary comparison (file diff / hash match) between submitted and presented versions."
+    },
+    {
+      "rule_id": "S_3.4.1",
+      "text": "The BOM is a sorted list of all vehicle parts.",
+      "classification": "hard",
+      "rationale": "Structural/formatting requirement - checkable by verifying sort order and completeness against a parts list."
+    },
+    {
+      "rule_id": "S_3.4.3",
+      "text": "The BOM must list all parts fitted to the prototype vehicle at any time during the event.",
+      "classification": "engineering-soundness",
+      "rationale": "Requires comparing the physical vehicle to the BOM - objectively verifiable in principle (a judge inspects the car) but not purely machine-checkable from the BOM file alone."
+    },
+    {
+      "rule_id": "S_3.4.5",
+      "text": "Fasteners (e.g. DIN-931 hexagon screws, glue, zip ties, tape used for mounting) are separate from parts and should not be listed as parts. Tape for edge protection or safety wire ARE considered parts.",
+      "classification": "interpretive",
+      "rationale": "Requires judgement to classify borderline items (e.g. is a specific tape 'for mounting' or 'for edge protection'?) - the rule itself provides examples rather than a strict test, implying edge cases need human judgement."
+    },
+    {
+      "rule_id": "S_3.4.6",
+      "text": "A self-manufactured fastener is considered a part.",
+      "classification": "hard",
+      "rationale": "Binary rule with a clear test: self-manufactured (yes/no) determines classification (part vs fastener)."
+    },
+    {
+      "rule_id": "S_3.4.7",
+      "text": "The BOM must be broken down into 10 specified systems (Autonomous System, Brake System, Chassis and Body, Drivetrain, Engine and Tractive System, Grounded Low Voltage System, Miscellaneous Fit and Finish, Steering System, Suspension System, Wheels/Bearings/Tires).",
+      "classification": "hard",
+      "rationale": "Fixed enumerated list - each part's system assignment can be validated against this closed set."
+    },
+    {
+      "rule_id": "S_3.4.8",
+      "text": "The chosen part name must clearly describe what is included (e.g. a spring should not be called 'damper').",
+      "classification": "interpretive",
+      "rationale": "Naming clarity/accuracy is a judgement call, not machine-checkable without a part-name-to-function ontology (which doesn't exist)."
+    },
+    {
+      "rule_id": "S_3.4.9",
+      "text": "Only metric units must be used within the BOM.",
+      "classification": "hard",
+      "rationale": "Binary, pattern-matchable: unit strings can be checked against a metric-units whitelist."
+    },
+    {
+      "rule_id": "S_3.5.2",
+      "text": "For 2026, a CCBOM for the Engine and Tractive System must be submitted.",
+      "classification": "hard",
+      "rationale": "Binary presence check for a specific required system's CCBOM section."
+    },
+    {
+      "rule_id": "S_3.5.3",
+      "text": "The CCBOM must include: actual manufacturing processes used, tooling, actual costs (materials/fabrication/bought parts/assembly), and carbon footprint in CO2e per part/process.",
+      "classification": "engineering-soundness",
+      "rationale": "Presence of fields is machine-checkable (hard), but whether values are 'actual' and 'realistic' requires engineering judgement against real-world cost/process knowledge - this is the core of what our B2 sourcing work supports."
+    },
+    {
+      "rule_id": "S_3.5.4",
+      "text": "Each constituent part of an assembly must be classified as bought or made.",
+      "classification": "hard",
+      "rationale": "Binary field, enumerated values (bought/made) - directly machine-checkable for presence and validity."
+    },
+    {
+      "rule_id": "S_3.5.5",
+      "text": "Each part in the CCBOM is broken down into: materials, processes, fasteners (if applicable), tooling (if applicable), overhead.",
+      "classification": "hard",
+      "rationale": "Structural/schema requirement - checkable as a completeness test on the data model, matches our materials.csv/processes.csv/fasteners.csv schema directly."
+    },
+    {
+      "rule_id": "S_3.5.6",
+      "text": "Production tooling specific to part geometry must be included (e.g. dies to stamp a chassis bracket).",
+      "classification": "engineering-soundness",
+      "rationale": "Requires engineering judgement to determine whether a given process genuinely requires part-specific tooling versus generic tooling - not a simple lookup."
+    },
+    {
+      "rule_id": "S_3.5.7",
+      "text": "Hand or power tools must not be included (in tooling costs).",
+      "classification": "hard",
+      "rationale": "Binary exclusion rule - a tool either is or is not a hand/power tool per a defined category list."
+    },
+    {
+      "rule_id": "S_3.5.8",
+      "text": "For bought parts, only fasteners must be included in emissions calc. Fasteners are not bought parts. If a bought part was modified, associated processes/tooling for the modification must be included.",
+      "classification": "engineering-soundness",
+      "rationale": "The 'if modified' condition requires judging whether a change to a bought part constitutes a genuine modification - not purely binary."
+    },
+    {
+      "rule_id": "S_3.5.9",
+      "text": "A modified bought part is a make part where the bought part acts as material. Processes/tooling/fasteners/overhead for modifications must be included; carbon footprint of the original bought part itself should not be considered.",
+      "classification": "engineering-soundness",
+      "rationale": "Correct application requires understanding the modification's scope and cost boundary - an engineering judgement call, not a lookup."
+    },
+    {
+      "rule_id": "S_3.5.10",
+      "text": "Only parts that can be bought from a catalog may be designated as bought parts.",
+      "classification": "hard",
+      "rationale": "Binary test in principle: does a catalog listing exist for this exact part? Directly maps to our source_register's 'is this sourced from a real supplier catalog' check."
+    },
+    {
+      "rule_id": "S_3.5.11",
+      "text": "Cost calculations must be as realistic as possible and exclude R&D and capital expenditure for real estate (plant, development hours).",
+      "classification": "interpretive",
+      "rationale": "'As realistic as possible' is inherently a judge-scored qualitative standard, not a testable threshold. This is the exact rule that drove our B2 real-sourcing approach, since there is no official rate table to check against."
+    },
+    {
+      "rule_id": "S_3.5.12",
+      "text": "All costs must be displayed in EUR. For non-EUR currencies, the team must provide the exchange rate used.",
+      "classification": "hard",
+      "rationale": "Binary/structural: currency field must equal EUR, and a documented exchange rate must be present for any conversion - directly maps to what we've been doing in materials.csv notes throughout B2."
+    },
+    {
+      "rule_id": "S_3.5.13",
+      "text": "There is no maximum cost. Receipts are not required for any items.",
+      "classification": "hard",
+      "rationale": "Explicitly states the absence of a constraint - trivially satisfied, included for completeness."
+    },
+    {
+      "rule_id": "S_3.5.14",
+      "text": "The calculations for machine hourly rates, wages (including overheads) etc. must be shown.",
+      "classification": "hard",
+      "rationale": "Binary presence check: is a calculation/derivation shown for each rate, or is it an unexplained number? Directly maps to our processes.csv notes column requirement."
+    },
+    {
+      "rule_id": "S_3.5.15_to_18",
+      "text": "Carbon footprint calculated as Cradle-to-Gate LCA including raw material extraction, manufacturing, transportation between steps; excludes R&D.",
+      "classification": "engineering-soundness",
+      "rationale": "LCA methodology correctness requires domain expertise to apply properly (system boundaries, emission factors) - objectively gradable by an expert but not simply machine-checkable. NOTE: out of scope for current B-stage work (cost focus, not emissions) - flagged for awareness only."
+    },
+    {
+      "rule_id": "S_3.7.2",
+      "text": "The cost model used must be pointed out, especially which specific costs are included (e.g. machine operation costs).",
+      "classification": "hard",
+      "rationale": "Binary presence/completeness check: is the cost model methodology documented? Directly maps to our provenance_notes.md and per-row notes approach."
+    },
+    {
+      "rule_id": "S_3.8.3",
+      "text": "If items are missing from the BOM, points are deducted until 0 points are scored for BOM Discussion.",
+      "classification": "hard",
+      "rationale": "Binary completeness check against the vehicle's actual part list, with a defined (if unspecified-magnitude) penalty function."
+    }
+  ],
+  "summary": {
+    "total_rules_classified": 26,
+    "hard_count": 17,
+    "engineering_soundness_count": 6,
+    "interpretive_count": 3,
+    "note_on_S_3.5.15_18": "Rules S_3.5.15 through S_3.5.18 are grouped into a single entry (S_3.5.15_to_18) since they form one coherent LCA methodology block - out of scope for current cost-focused B-stages, flagged for awareness only"
+  }
+}

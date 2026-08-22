@@ -28,18 +28,15 @@ def load_bom():
         return json.load(file)
 
 
-def test_nine_verified_pilot_costs_match():
+def test_all_10_verified_pilot_costs_match():
     registry = DataRegistry()
     bom = load_bom()
 
-    known_issue = "PILOT_004"
+    assert len(bom["parts"]) == 10
 
     checked = 0
 
     for part in bom["parts"]:
-        if part["part_id"] == known_issue:
-            continue
-
         result = calculate_part_cost(
             part,
             registry,
@@ -60,35 +57,7 @@ def test_nine_verified_pilot_costs_match():
 
         checked += 1
 
-    assert checked == 9
-
-
-def test_pilot_004_arithmetic_issue_is_detected():
-    registry = DataRegistry()
-    bom = load_bom()
-
-    part = next(
-        part
-        for part in bom["parts"]
-        if part["part_id"] == "PILOT_004"
-    )
-
-    result = calculate_part_cost(
-        part,
-        registry,
-    )
-
-    assert result["material_cost_eur"] == 2.79
-    assert result["process_cost_eur"] == 6.99
-    assert result["fastener_cost_eur"] == 0.00
-    assert result["total_cost_eur"] == 9.78
-
-    assert (
-        part["manual_calculation"][
-            "total_cost_eur"
-        ]
-        == 9.79
-    )
+    assert checked == 10
 
 
 def test_fdm_hour_rate_is_converted_to_minutes():
@@ -136,7 +105,6 @@ def test_bom_total_uses_full_precision():
         registry,
     )
 
-    # Deterministic recomputation gives €312.02.
-    # Person B's current frozen file gives €312.03
-    # because PILOT_004 is one cent high.
+    # Corrected B4 v2 benchmark and deterministic
+    # recomputation must agree exactly.
     assert result["total_cost_eur"] == 312.02

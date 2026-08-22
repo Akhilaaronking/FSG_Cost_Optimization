@@ -1,8 +1,8 @@
 {
   "stage": "B4",
-  "description": "10-part pilot BOM for Person A's unit tests. ALL 10 parts have full manual ground-truth calculations (mass, material cost, process cost, fastener cost, total cost) worked by hand. All process/print times are engineering-judgement estimates, not sourced - flagged per-part in calc_notes.",
+  "description": "10-part pilot BOM for Person A's unit tests. ALL 10 parts have full manual ground-truth calculations (mass, material cost, process cost, fastener cost, total cost) worked by hand. v2 CORRECTION (2026-08-22): PILOT_004 material/total cost fixed (was EUR2.80/9.79, corrected to EUR2.79/9.78) after Person A flagged a rounding discrepancy during A4 validation. All process/print times are engineering-judgement estimates, not sourced - flagged per-part in calc_notes.",
   "frozen": true,
-  "frozen_date": "2026-08-22",
+  "frozen_date": "2026-08-22 (v2 correction)",
   "parts": [
     {
       "part_id": "PILOT_001",
@@ -111,12 +111,12 @@
       "fasteners": [],
       "manual_calculation": {
         "status": "COMPLETE - ground truth",
-        "material_cost_eur": 2.8,
+        "material_cost_eur": 2.79,
         "process_time_min_estimate": 3,
         "process_cost_eur": 6.99,
         "fastener_cost_eur": 0,
-        "total_cost_eur": 9.79,
-        "calc_notes": "Mass 0.05652 kg x EUR49.44/kg. Process time ESTIMATE (3 min cut+bend) - engineering judgement, not sourced. Welded, no fasteners.",
+        "total_cost_eur": 9.78,
+        "calc_notes": "Mass 0.05652 kg x EUR49.44/kg. Process time ESTIMATE (3 min cut+bend) - engineering judgement, not sourced. Welded, no fasteners. CORRECTED 2026-08-22 (v2): material_cost was previously mis-rounded as EUR2.80/total EUR9.79 in v1 - exact value is 0.05652 x 49.44 = 2.7943488 -> EUR2.79, total = 2.7943488 + 6.99 = 9.7843488 -> EUR9.78. Correction reported by Person A during A4 validation cross-check.",
         "resolution_notes": "Welded, not bolted - no fastener cost applies"
       }
     },
@@ -287,6 +287,16 @@
         "calc_notes": "Mass 0.001026 kg x EUR40.00/kg (filament, corrected from sheet-stock mismatch). Process cost = 8 min print time x EUR0.20/min. Print time ESTIMATE - engineering judgement, not sourced. Fastener (roll pin) cost exceeds part material+process cost - small parts dominated by fastener cost, a real BOM finding worth noting.",
         "resolution_notes": "RESOLVED: material_id corrected from NYLON_PA6 (sheet stock) to NYLON_PA6_FILAMENT (3D-print filament) - sheet-vs-filament mismatch found during B4 review, fixed by sourcing real filament pricing (SUP_3DDRUCKSHOPNORD_2026)"
       }
+    }
+  ],
+  "version": 2,
+  "correction_log": [
+    {
+      "version": 2,
+      "date": "2026-08-22",
+      "reported_by": "Person A (during A4 validation cross-check)",
+      "part_affected": "PILOT_004",
+      "change": "material_cost_eur 2.80->2.79, total_cost_eur 9.79->9.78 (rounding error in v1)"
     }
   ]
 }

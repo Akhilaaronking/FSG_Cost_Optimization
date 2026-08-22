@@ -12,9 +12,7 @@ BOM_PATH = Path(
     "data/benchmark/pilot_10_parts_ground_truth.json"
 )
 
-KNOWN_GROUND_TRUTH_ISSUES = {
-    "PILOT_004",
-}
+KNOWN_GROUND_TRUTH_ISSUES = set()
 
 
 def main():
