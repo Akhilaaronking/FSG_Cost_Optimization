@@ -1,0 +1,3 @@
+process_id,name,rate_value,rate_unit,source_id,verified
+TEST_PROCESS_01,Placeholder Process 01,1.0,TEST_UNIT,PLACEHOLDER_DO_NOT_USE,false
+TEST_PROCESS_02,Placeholder Process 02,1.0,TEST_UNIT,PLACEHOLDER_DO_NOT_USE,false

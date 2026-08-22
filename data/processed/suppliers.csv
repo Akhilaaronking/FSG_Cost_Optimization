@@ -1,0 +1,2 @@
+supplier_item_id,supplier_name,manufacturer_part_number,description,unit_price,currency,retrieval_date,source_id,verified
+TEST_SUPPLIER_ITEM_01,Placeholder Supplier,TEST-PART-001,Placeholder supplier item,1.0,EUR,2026-08-21,PLACEHOLDER_DO_NOT_USE,false
