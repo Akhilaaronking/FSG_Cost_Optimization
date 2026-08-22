@@ -1,2 +1,11 @@
-fastener_id,name,unit_cost,source_id,verified
-TEST_FASTENER_01,Placeholder Fastener 01,1.0,PLACEHOLDER_DO_NOT_USE,false
+fastener_id,name,unit_price_eur,supplier,supplier_part_number,source_id,retrieval_date,notes
+BOLT_M4X16,Hex bolt M4x16 (DIN 933 A4),0.1876,ScrewsAndMore,9334416-10245,SUP_SCREWSANDMORE_2026,2026-08-22,
+BOLT_M6X20,Hex bolt M6x20 (Bofix brand - no DIN spec given),0.37,Decathlon,479426ff-ab84-4087-852a-729806ca8a72,SUP_DECATHLON_2026,2026-08-22,
+BOLT_M8X25,Hex bolt M8x25 (DIN 933),1.23,DataParts,ACO-13150090009,SUP_DATAPARTS_2026,2026-08-22,
+NUT_M6,Hex nut M6 (DIN 934; Zinc Plated Mild Steel Class 8),0.05,Accu Components,HPN-M6-V2-C8-Z,SUP_ACCU_2026,2026-08-22,Zinc plated mild steel Class 8; used 100-unit bulk price as representative order size; full range EUR0.02-1.13/pc depending on qty
+NUT_M8,Hex nut M8 (DIN 934; Marine Stainless Steel A4),0.29,Accu Components,HPN-M8-A4,SUP_ACCU_2026,2026-08-22,"CAUTION: A4 marine-grade stainless steel, different material grade than NUT_M6 (zinc-plated Class 8 steel) - inconsistency across fastener set, flag in methodology; used 100-unit bulk price; full range EUR0.17-1.43/pc"
+WASHER_M6,Flat washer M6 (DIN 9021; Stainless Steel A2),0.14,Accu Components,HPW-M6-V2-A2,SUP_ACCU_2026,2026-08-22,Used 100-unit bulk price as representative order size; full range EUR0.05-1.25/pc depending on qty
+WASHER_M8,Flat washer M8 (DIN 125; Marine Stainless Steel A4),0.14,Accu Components,HPW-M8-A4,SUP_ACCU_2026,2026-08-22,Used 100-unit bulk price as representative order size; full range EUR0.06-1.25/pc depending on qty. Note: DIN 125 standard differs slightly from WASHER_M6 (DIN 9021) - both are flat washer types but different standard/dimensions
+RIVET_NUT_M6,Rivet nut M6 (Knurled Flat; Stainless Steel A2),0.47,Accu Components,HRKN-M6-14.5-A2,SUP_ACCU_2026,2026-08-22,Used 100-unit bulk price as representative order size; full range EUR0.26-1.63/pc depending on qty; 14.5mm length; 0.5-3mm grip range
+CIRCLIP_10MM,External circlip 10mm shaft (DIN 471; Stainless Steel 1.4122),0.61,Accu Components,HEC-10-A2,SUP_ACCU_2026,2026-08-22,Used 100-unit bulk price as representative order size; full range EUR0.30-1.81/pc depending on qty
+ROLL_PIN_5MM,Spiral roll pin 5x16mm (ISO 8750; Stainless Steel A1),1.47,Accu Components,HSPRP-5-16-A1,SUP_ACCU_2026,2026-08-22,Used 100-unit bulk price as representative order size; full range EUR0.68-2.87/pc depending on qty; 16mm length

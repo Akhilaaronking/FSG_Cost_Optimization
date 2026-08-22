@@ -1,0 +1,292 @@
+{
+  "stage": "B4",
+  "description": "10-part pilot BOM for Person A's unit tests. ALL 10 parts have full manual ground-truth calculations (mass, material cost, process cost, fastener cost, total cost) worked by hand. All process/print times are engineering-judgement estimates, not sourced - flagged per-part in calc_notes.",
+  "frozen": true,
+  "frozen_date": "2026-08-22",
+  "parts": [
+    {
+      "part_id": "PILOT_001",
+      "name": "Pedal box mounting bracket",
+      "material_id": "AL_6061_T6",
+      "process_id": "CNC_MILLING",
+      "geometry_assumption": "flat plate approximation, 80mm x 60mm x 5mm",
+      "dimensions_mm": {
+        "length": 80,
+        "width": 60,
+        "thickness": 5
+      },
+      "volume_m3": 2.4e-05,
+      "mass_kg": 0.0648,
+      "fasteners": [
+        {
+          "fastener_id": "BOLT_M6X20",
+          "qty": 4
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 2.54,
+        "process_time_min_estimate": 15,
+        "process_cost_eur": 21.3,
+        "fastener_cost_eur": 1.48,
+        "total_cost_eur": 25.32,
+        "calc_notes": "Mass = 0.000024 m3 x 2700 kg/m3 = 0.0648 kg. Material cost = 0.0648 x EUR39.20/kg. Process time is an ESTIMATE (15 min for profile cut + 4 holes) - not from a source, flagged as engineering judgement."
+      }
+    },
+    {
+      "part_id": "PILOT_002",
+      "name": "Suspension pickup plate",
+      "material_id": "AL_7075_T6",
+      "process_id": "CNC_MILLING",
+      "geometry_assumption": "flat plate, 100mm x 70mm x 8mm",
+      "dimensions_mm": {
+        "length": 100,
+        "width": 70,
+        "thickness": 8
+      },
+      "volume_m3": 5.6e-05,
+      "mass_kg": 0.15736,
+      "fasteners": [
+        {
+          "fastener_id": "BOLT_M8X25",
+          "qty": 2
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 6.96,
+        "process_time_min_estimate": 20,
+        "process_cost_eur": 28.4,
+        "fastener_cost_eur": 2.46,
+        "total_cost_eur": 37.82,
+        "calc_notes": "Mass 0.15736 kg x EUR44.24/kg. Process time ESTIMATE (20 min, thicker plate + precision holes) - engineering judgement, not sourced."
+      }
+    },
+    {
+      "part_id": "PILOT_003",
+      "name": "Chassis mounting tab",
+      "material_id": "STEEL_S235",
+      "process_id": "LASER_CUT_BEND",
+      "geometry_assumption": "flat tab, 50mm x 40mm x 3mm",
+      "dimensions_mm": {
+        "length": 50,
+        "width": 40,
+        "thickness": 3
+      },
+      "volume_m3": 6e-06,
+      "mass_kg": 0.0471,
+      "fasteners": [
+        {
+          "fastener_id": "BOLT_M6X20",
+          "qty": 2
+        },
+        {
+          "fastener_id": "NUT_M6",
+          "qty": 2
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 0.42,
+        "process_time_min_estimate": 3,
+        "process_cost_eur": 6.99,
+        "fastener_cost_eur": 0.84,
+        "total_cost_eur": 8.25,
+        "calc_notes": "Mass 0.0471 kg x EUR8.86/kg. Process time ESTIMATE (3 min cut+bend) - engineering judgement, not sourced. Fasteners: 2x BOLT_M6X20 + 2x NUT_M6."
+      }
+    },
+    {
+      "part_id": "PILOT_004",
+      "name": "Roll hoop bracing gusset",
+      "material_id": "STEEL_4130_CRMO",
+      "process_id": "LASER_CUT_BEND",
+      "geometry_assumption": "flat gusset, 60mm x 60mm x 2mm",
+      "dimensions_mm": {
+        "length": 60,
+        "width": 60,
+        "thickness": 2
+      },
+      "volume_m3": 7.2e-06,
+      "mass_kg": 0.05652,
+      "fasteners": [],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 2.8,
+        "process_time_min_estimate": 3,
+        "process_cost_eur": 6.99,
+        "fastener_cost_eur": 0,
+        "total_cost_eur": 9.79,
+        "calc_notes": "Mass 0.05652 kg x EUR49.44/kg. Process time ESTIMATE (3 min cut+bend) - engineering judgement, not sourced. Welded, no fasteners.",
+        "resolution_notes": "Welded, not bolted - no fastener cost applies"
+      }
+    },
+    {
+      "part_id": "PILOT_005",
+      "name": "Steering column spacer",
+      "material_id": "POM_DELRIN",
+      "process_id": "CNC_TURNING",
+      "geometry_assumption": "hollow cylinder, OD 20mm, ID 10mm, length 30mm",
+      "dimensions_mm": {
+        "od": 20,
+        "id": 10,
+        "length": 30
+      },
+      "volume_m3": 7.07e-06,
+      "mass_kg": 0.00997,
+      "fasteners": [],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 0.93,
+        "process_time_min_estimate": 5,
+        "process_cost_eur": 6.88,
+        "fastener_cost_eur": 0,
+        "total_cost_eur": 7.8,
+        "calc_notes": "Volume = pi x (0.010^2 - 0.005^2) x 0.030 = 0.00000707 m3. Mass = volume x 1410 kg/m3. Process time is an ESTIMATE (5 min simple turning) - not from a source, flagged as engineering judgement."
+      }
+    },
+    {
+      "part_id": "PILOT_006",
+      "name": "Wheel bearing carrier bushing",
+      "material_id": "NYLON_PA6",
+      "process_id": "CNC_TURNING",
+      "geometry_assumption": "hollow cylinder, OD 25mm, ID 15mm, length 20mm",
+      "dimensions_mm": {
+        "od": 25,
+        "id": 15,
+        "length": 20
+      },
+      "volume_m3": 6.28e-06,
+      "mass_kg": 0.00716,
+      "fasteners": [],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 0.26,
+        "process_time_min_estimate": 4,
+        "process_cost_eur": 5.5,
+        "fastener_cost_eur": 0,
+        "total_cost_eur": 5.76,
+        "calc_notes": "Mass 0.00716 kg x EUR35.96/kg (sheet stock nylon). Process time ESTIMATE (4 min simple turning) - engineering judgement, not sourced."
+      }
+    },
+    {
+      "part_id": "PILOT_007",
+      "name": "Aero mounting standoff",
+      "material_id": "TI_GRADE5",
+      "process_id": "CNC_TURNING",
+      "geometry_assumption": "solid cylinder, OD 12mm, length 25mm",
+      "dimensions_mm": {
+        "od": 12,
+        "length": 25
+      },
+      "volume_m3": 2.83e-06,
+      "mass_kg": 0.01253,
+      "fasteners": [
+        {
+          "fastener_id": "BOLT_M6X20",
+          "qty": 1
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 5.28,
+        "process_time_min_estimate": 6,
+        "process_cost_eur": 8.25,
+        "fastener_cost_eur": 0.37,
+        "total_cost_eur": 13.9,
+        "calc_notes": "Mass 0.01253 kg x EUR421.40/kg (titanium - dominant cost driver despite tiny mass). Process time ESTIMATE (6 min, titanium machines slower than aluminum) - engineering judgement, not sourced."
+      }
+    },
+    {
+      "part_id": "PILOT_008",
+      "name": "Battery box side panel",
+      "material_id": "CF_PLATE_3K",
+      "process_id": "WATERJET_CUT",
+      "geometry_assumption": "flat panel, 300mm x 200mm x 3mm",
+      "dimensions_mm": {
+        "length": 300,
+        "width": 200,
+        "thickness": 3
+      },
+      "volume_m3": 0.00018,
+      "mass_kg": 0.288,
+      "fasteners": [
+        {
+          "fastener_id": "RIVET_NUT_M6",
+          "qty": 4
+        },
+        {
+          "fastener_id": "BOLT_M6X20",
+          "qty": 4
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 143.93,
+        "cut_length_m_estimate": 1.0,
+        "process_cost_eur": 47.5,
+        "fastener_cost_eur": 3.36,
+        "total_cost_eur": 194.79,
+        "calc_notes": "Mass = 0.00018 m3 x 1600 kg/m3 = 0.288 kg. Material cost dominated by high per-kg composite price (small-quantity retail source, not bulk). Cut length estimated as panel perimeter (2*(0.3+0.2)=1.0m), using straight-cut rate EUR47.5/m; holes for rivet nuts not separately costed. FLAG: this part's total cost is a strong illustration of small-batch sourcing cost inflation for composites - worth discussing in thesis limitations."
+      }
+    },
+    {
+      "part_id": "PILOT_009",
+      "name": "Sensor mounting bracket (3D printed)",
+      "material_id": "ABS_3DPRINT",
+      "process_id": "FDM_3DPRINT",
+      "geometry_assumption": "small bracket, approx 40mm x 30mm x 5mm solid equivalent",
+      "dimensions_mm": {
+        "length": 40,
+        "width": 30,
+        "thickness": 5
+      },
+      "volume_m3": 6e-06,
+      "mass_kg": 0.00624,
+      "fasteners": [
+        {
+          "fastener_id": "BOLT_M4X16",
+          "qty": 2
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 0.11,
+        "process_time_min_estimate": 25,
+        "process_cost_eur": 5.0,
+        "fastener_cost_eur": 0.38,
+        "total_cost_eur": 5.49,
+        "calc_notes": "Mass 0.00624 kg x EUR17.98/kg. Process cost = 25 min print time x (EUR12/hr / 60 min) = EUR0.20/min. Print time ESTIMATE - engineering judgement, not sourced."
+      }
+    },
+    {
+      "part_id": "PILOT_010",
+      "name": "Wiring harness clip",
+      "material_id": "NYLON_PA6_FILAMENT",
+      "process_id": "FDM_3DPRINT",
+      "geometry_assumption": "small clip, approx 20mm x 15mm x 3mm solid equivalent",
+      "dimensions_mm": {
+        "length": 20,
+        "width": 15,
+        "thickness": 3
+      },
+      "volume_m3": 9e-07,
+      "mass_kg": 0.001026,
+      "fasteners": [
+        {
+          "fastener_id": "ROLL_PIN_5MM",
+          "qty": 1
+        }
+      ],
+      "manual_calculation": {
+        "status": "COMPLETE - ground truth",
+        "material_cost_eur": 0.04,
+        "process_time_min_estimate": 8,
+        "process_cost_eur": 1.6,
+        "fastener_cost_eur": 1.47,
+        "total_cost_eur": 3.11,
+        "calc_notes": "Mass 0.001026 kg x EUR40.00/kg (filament, corrected from sheet-stock mismatch). Process cost = 8 min print time x EUR0.20/min. Print time ESTIMATE - engineering judgement, not sourced. Fastener (roll pin) cost exceeds part material+process cost - small parts dominated by fastener cost, a real BOM finding worth noting.",
+        "resolution_notes": "RESOLVED: material_id corrected from NYLON_PA6 (sheet stock) to NYLON_PA6_FILAMENT (3D-print filament) - sheet-vs-filament mismatch found during B4 review, fixed by sourcing real filament pricing (SUP_3DDRUCKSHOPNORD_2026)"
+      }
+    }
+  ]
+}
