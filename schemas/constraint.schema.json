@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Canonical Constraint Rule",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rule_id",
+    "rule_category",
+    "description",
+    "target_field",
+    "operator",
+    "source_id",
+    "deterministic"
+  ],
+  "properties": {
+    "rule_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rule_category": {
+      "type": "string",
+      "enum": [
+        "hard",
+        "engineering",
+        "interpretive"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "applies_to": {
+      "type": ["string", "null"]
+    },
+    "target_field": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operator": {
+      "type": "string",
+      "enum": [
+        "eq",
+        "neq",
+        "lt",
+        "lte",
+        "gt",
+        "gte",
+        "in",
+        "not_in",
+        "includes",
+        "exists",
+        "subjective_review",
+        "no_constraint"
+      ]
+    },
+    "limit_value": {},
+    "unit": {
+      "type": ["string", "null"]
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_reference": {
+      "type": ["string", "null"]
+    },
+    "deterministic": {
+      "type": "boolean"
+    },
+    "notes": {
+      "type": ["string", "null"]
+    }
+  }
+}
