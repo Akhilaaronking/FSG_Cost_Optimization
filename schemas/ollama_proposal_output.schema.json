@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ollama Atomic Proposal Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposal_id",
+    "part_id",
+    "change_type",
+    "target_field",
+    "new_value",
+    "reasoning_summary"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "part_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "material",
+        "process"
+      ]
+    },
+    "target_field": {
+      "type": "string",
+      "enum": [
+        "material_id",
+        "process_id"
+      ]
+    },
+    "old_value": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "new_value": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reasoning_summary": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  }
+}

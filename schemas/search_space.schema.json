@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/search_space.schema.json",
+  "title": "Explicit Optimisation Search Space",
+  "description": "Admissible design variables for optimisation. Registry membership only validates identifier existence; it does not prove engineering compatibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "search_space_id",
+    "engineering_verified",
+    "parts"
+  ],
+  "properties": {
+    "search_space_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "engineering_verified": {
+      "type": "boolean"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/part_space"
+      }
+    }
+  },
+  "$defs": {
+    "continuous_variable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "min",
+        "max"
+      ],
+      "properties": {
+        "type": {
+          "const": "continuous"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "engineering_verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fastener_choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fastener_id",
+        "quantity"
+      ],
+      "properties": {
+        "fastener_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "part_space": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "part_id"
+      ],
+      "properties": {
+        "part_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "engineering_verified": {
+          "type": "boolean"
+        },
+        "material_choices": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "process_choices": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "geometry_variables": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/continuous_variable"
+          }
+        },
+        "fastener_choices": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/fastener_choice"
+            }
+          }
+        }
+      }
+    }
+  }
+}

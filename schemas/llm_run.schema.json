@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/llm_run.schema.json",
+  "title": "A10 LLM Proposal Generation Run Record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "run_id",
+    "condition",
+    "seed",
+    "model_name",
+    "backend_name",
+    "part_id",
+    "prompt_hash",
+    "rag_enabled",
+    "retrieval",
+    "raw_response",
+    "parsed_proposal",
+    "parse_valid",
+    "schema_valid",
+    "authority_valid",
+    "hallucinated",
+    "hallucination_categories",
+    "runtime_sec"
+  ],
+  "properties": {
+    "run_id": {"type": "string"},
+    "condition": {"enum": ["C1", "C2"]},
+    "seed": {"type": ["integer", "null"]},
+    "model_name": {"type": "string"},
+    "backend_name": {"type": "string"},
+    "part_id": {"type": "string"},
+    "prompt_hash": {"type": "string"},
+    "rag_enabled": {"type": "boolean"},
+    "retrieval": {"type": "object"},
+    "raw_response": {"type": "string"},
+    "parsed_proposal": {"type": ["object", "null"]},
+    "parse_valid": {"type": "boolean"},
+    "schema_valid": {"type": "boolean"},
+    "authority_valid": {"type": "boolean"},
+    "hallucinated": {"type": "boolean"},
+    "hallucination_categories": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "runtime_sec": {"type": "number", "minimum": 0}
+  }
+}

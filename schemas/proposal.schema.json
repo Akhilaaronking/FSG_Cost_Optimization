@@ -41,5 +41,72 @@
       "type": "string",
       "maxLength": 1000
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "change_type": {
+            "const": "material"
+          }
+        },
+        "required": [
+          "change_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "target_field": {
+            "const": "material_id"
+          },
+          "new_value": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "change_type": {
+            "const": "process"
+          }
+        },
+        "required": [
+          "change_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "target_field": {
+            "const": "process_id"
+          },
+          "new_value": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "change_type": {
+            "const": "fastener"
+          }
+        },
+        "required": [
+          "change_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "target_field": {
+            "const": "fasteners"
+          }
+        }
+      }
+    }
+  ]
 }

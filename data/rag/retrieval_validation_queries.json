@@ -1,0 +1,58 @@
+[
+  {
+    "query_id": "A9_Q001",
+    "query_text": "Which Formula Student cost rule requires all costs to be displayed in EUR and exchange rates to be documented for non-EUR currencies?",
+    "relevant_rule_ids": [
+      "S_3.5.12"
+    ],
+    "reason": "S_3.5.12 directly addresses EUR currency display and exchange-rate documentation."
+  },
+  {
+    "query_id": "A9_Q002",
+    "query_text": "Which rule requires each assembly constituent part to be classified as bought or made?",
+    "relevant_rule_ids": [
+      "S_3.5.4"
+    ],
+    "reason": "S_3.5.4 directly covers bought/made classification."
+  },
+  {
+    "query_id": "A9_Q003",
+    "query_text": "Which rule says that only metric units may be used in the BOM?",
+    "relevant_rule_ids": [
+      "S_3.4.9"
+    ],
+    "reason": "S_3.4.9 directly covers metric-unit requirements."
+  },
+  {
+    "query_id": "A9_Q004",
+    "query_text": "Which rule says only parts available from a catalog may be designated as bought parts?",
+    "relevant_rule_ids": [
+      "S_3.5.10"
+    ],
+    "reason": "S_3.5.10 directly addresses catalog availability for bought parts."
+  },
+  {
+    "query_id": "A9_Q005",
+    "query_text": "Which interpretive rule concerns making cost calculations as realistic as possible and excluding R&D or real estate capital expenditure?",
+    "relevant_rule_ids": [
+      "S_3.5.11"
+    ],
+    "reason": "S_3.5.11 is the interpretive FSG realistic-cost rule. DERIVED_QG_001 is not a substitute."
+  },
+  {
+    "query_id": "A9_Q006",
+    "query_text": "Which rule says a self-manufactured fastener is considered a part?",
+    "relevant_rule_ids": [
+      "S_3.4.6"
+    ],
+    "reason": "S_3.4.6 directly covers self-manufactured fastener classification."
+  },
+  {
+    "query_id": "A9_Q007",
+    "query_text": "Which internal quality gate checks that cost-bearing material process and fastener records have traceable source IDs?",
+    "relevant_rule_ids": [
+      "DERIVED_QG_001"
+    ],
+    "reason": "DERIVED_QG_001 is the internal traceability quality gate and is not an FSG rule."
+  }
+]
