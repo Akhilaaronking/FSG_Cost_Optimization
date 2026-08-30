@@ -427,8 +427,23 @@ def _archive(
         if _feasible(candidate) is not False
     ]
 
+    by_fingerprint = {}
+
+    for candidate in sorted(
+        established,
+        key=lambda item: item["candidate_id"],
+    ):
+        key = candidate.get(
+            "fingerprint",
+            candidate["candidate_id"],
+        )
+        by_fingerprint.setdefault(
+            key,
+            candidate,
+        )
+
     return non_dominated(
-        established
+        list(by_fingerprint.values())
     )
 
 

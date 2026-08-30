@@ -1,0 +1,38 @@
+model: mlx-community/Meta-Llama-3.1-8B-Instruct-4bit
+train: true
+data: data/training/mlx
+
+fine_tune_type: lora
+optimizer: adamw
+
+num_layers: 16
+batch_size: 1
+iters: 300
+
+val_batches: 20
+learning_rate: 0.0001
+
+steps_per_report: 10
+steps_per_eval: 25
+
+grad_accumulation_steps: 2
+grad_checkpoint: true
+mask_prompt: true
+
+max_seq_length: 768
+
+adapter_path: models/c3_adapter
+save_every: 50
+seed: 42
+
+lora_parameters:
+  rank: 16
+  scale: 20.0
+  dropout: 0.05
+
+lr_schedule:
+  name: cosine_decay
+  arguments:
+    - 0.0001
+    - 300
+    - 0.00001

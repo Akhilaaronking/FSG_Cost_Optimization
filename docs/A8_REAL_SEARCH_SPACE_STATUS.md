@@ -1,20 +1,21 @@
 # A8 Real Search-Space Status
 
-The A8 weighted-sum and NSGA-II implementations are operational and are tested with synthetic algorithm fixtures only.
+The A8 weighted-sum and NSGA-II implementations are operational.
 
-No engineering-verified Formula Student optimisation search space was found in the repository. The repository contains a changelog reference to `data/benchmark/development_30_parts.json`, but that file is not present.
+An engineering-reviewed Formula Student material/process search space is now present at `data/benchmark/real_search_space.json`.
 
-Real C5 optimisation is therefore blocked until an explicit admissible design/search-space definition is supplied. Membership in `materials.csv`, `processes.csv`, or `fasteners.csv` proves identifier existence only; it does not prove that a material, process, or fastener is engineering-interchangeable for a given Formula Student part.
+The real search-space adapter in `src/optimization/search_space.py` converts the approved Option A fields `admissible_materials` and `admissible_processes` into optimiser-facing `material_choices` and `process_choices`. It cross-checks the approved current material/process against the frozen B4 benchmark and validates every active choice against the canonical registries.
 
-Person B must supply, at minimum:
+Membership in `materials.csv`, `processes.csv`, or `fasteners.csv` proves identifier existence only; it does not prove that a material, process, or fastener is engineering-interchangeable for a given Formula Student part.
 
-- baseline part IDs covered by the real development benchmark
-- allowed material alternatives per part
-- allowed manufacturing-process alternatives per part
-- any material/process compatibility restrictions per part
-- geometric decision variables and verified lower/upper bounds
-- fastener alternatives and quantity bounds where fasteners are mutable
-- whether each search-space entry is engineering verified
-- source/provenance notes for the admissibility decisions
+Current active real optimisation scope:
 
-Until those inputs exist, synthetic validation must not be reported as C5 Formula Student experimental results.
+- material choices
+- process choices
+
+Not active yet:
+
+- geometry variables, unless explicit numeric engineering-verified bounds are added
+- fastener variables
+
+Synthetic validation must still not be reported as C5 Formula Student experimental results.

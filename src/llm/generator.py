@@ -65,6 +65,25 @@ class ProposalGenerator:
             "seed": config.seed,
             "rag_enabled": prompt_bundle.rag_enabled,
         }
+
+        # Record backend-specific provenance when available.
+        # C1/C2 Ollama behavior is unchanged.
+        adapter_path = getattr(
+            self.backend,
+            "adapter_path",
+            None,
+        )
+        quantization = getattr(
+            self.backend,
+            "quantization",
+            None,
+        )
+
+        if adapter_path is not None:
+            model_config["adapter_path"] = adapter_path
+
+        if quantization is not None:
+            model_config["quantization"] = quantization
         errors = []
         proposal = None
         parse_valid = False

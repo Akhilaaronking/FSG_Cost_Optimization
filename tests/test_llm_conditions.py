@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from src.data.registry import DataRegistry
 from src.llm.backend import (
     StubLLMBackend,
@@ -7,6 +9,7 @@ from src.llm.backend import (
 from src.llm.conditions import (
     generate_c1,
     generate_c2,
+    generate_c3,
 )
 from src.llm.generator import (
     ProposalGenerator,
@@ -142,3 +145,68 @@ def test_c2_records_retrieval_trace():
     assert trace["retrieval"][
         "retrieved_source_references"
     ] == ["S 3.5.12, p.115"]
+
+
+
+def c3_generator():
+    backend = StubLLMBackend(response())
+
+    # Test double only: imitate the identity of the
+    # real MLX LoRA backend without loading MLX/model weights.
+    backend.backend_name = "mlx_lora"
+
+    return ProposalGenerator(
+        backend,
+        registry=DataRegistry(),
+    )
+
+
+def test_c3_rejects_non_mlx_backend():
+    retriever = CountingRetriever()
+
+    with pytest.raises(
+        ValueError,
+        match="fine-tuned MLX LoRA backend",
+    ):
+        generate_c3(
+            generator(),
+            bom=bom(),
+            target_part=bom()["parts"][0],
+            retriever=retriever,
+            seed=0,
+        )
+
+    # Failure must happen before retrieval/generation.
+    assert retriever.calls == []
+
+
+def test_c3_uses_top_k_five():
+    retriever = CountingRetriever()
+
+    trace = generate_c3(
+        c3_generator(),
+        bom=bom(),
+        target_part=bom()["parts"][0],
+        retriever=retriever,
+        seed=0,
+    )
+
+    assert len(retriever.calls) == 1
+    assert retriever.calls[0]["top_k"] == 5
+    assert trace["retrieval"]["rag_enabled"] is True
+    assert trace["retrieval"]["top_k"] == 5
+
+
+def test_c3_records_c3_condition():
+    retriever = CountingRetriever()
+
+    trace = generate_c3(
+        c3_generator(),
+        bom=bom(),
+        target_part=bom()["parts"][0],
+        retriever=retriever,
+        seed=0,
+    )
+
+    assert trace["condition"] == "C3"
+    assert trace["model"]["backend_name"] == "mlx_lora"

@@ -1,4 +1,5 @@
 import json
+import argparse
 from pathlib import Path
 
 from src.rag.embeddings import (
@@ -32,11 +33,21 @@ def _ensure_corpus():
     main()
 
 
-def _make_embedder():
+def _make_embedder(
+    *,
+    allow_development_fallback: bool = False,
+):
     try:
         embedder = SentenceTransformerEmbedder()
         return embedder, DEFAULT_MODEL_NAME
     except Exception as exc:
+        if not allow_development_fallback:
+            raise RuntimeError(
+                "Production SentenceTransformer embedding is required "
+                "for scientific RAG validation. Install or make available "
+                f"{DEFAULT_MODEL_NAME}; no keyword fallback was used."
+            ) from exc
+
         print(
             "Production SentenceTransformer unavailable; "
             "using deterministic KeywordHashEmbedder for "
@@ -60,6 +71,19 @@ def _rule_ids(results):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Validate A9 RAG retrieval."
+    )
+    parser.add_argument(
+        "--allow-development-fallback",
+        action="store_true",
+        help=(
+            "Allow deterministic keyword-hash embeddings for local "
+            "development checks. Do not use for scientific runs."
+        ),
+    )
+    args = parser.parse_args()
+
     _ensure_corpus()
 
     with MANIFEST_PATH.open(
@@ -74,7 +98,9 @@ def main():
     ) as file:
         queries = json.load(file)
 
-    embedder, model_name = _make_embedder()
+    embedder, model_name = _make_embedder(
+        allow_development_fallback=args.allow_development_fallback,
+    )
     retriever = RagRetriever(
         CORPUS_PATH,
         embedder,

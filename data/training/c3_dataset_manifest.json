@@ -1,0 +1,62 @@
+{
+  "change_type_counts": {
+    "material": 900,
+    "process": 612
+  },
+  "dataset_description": "Programmatically generated instruction examples derived from an engineering-reviewed admissible search space.",
+  "example_type_counts": {
+    "negative": 1044,
+    "positive": 468
+  },
+  "hashes": {
+    "benchmark_hash": "0a3ffac413e82ddd7d5c6ae39b25e33267b5a930034b4c94cc74d05d89cc5146",
+    "dataset_hash": "e7870a5729ca1dd6ce7e713a846e48250a2967be6a2ee651d98a1780ff4169ce",
+    "search_space_hash": "f3ff489076fe7f49ca6e6c5444e23a3af7551997b2ac4236a67d71390ee89c68",
+    "source_hash": "5c936852d2fac826edc2c8a7a3e40c03d2f23dd9192352b332a162cdf1ec060a"
+  },
+  "label": "A11 C3 training data preparation",
+  "limitations": [
+    "Examples are generated from approved search-space entries, not independently verified optimal designs.",
+    "No global cost, mass, strength, or FSG-compliance claims are encoded in assistant positives.",
+    "Only material and process changes are active for this initial C3 dataset."
+  ],
+  "not_c3_experimental_results": true,
+  "not_training_run": true,
+  "part_ids_by_split": {
+    "test": [
+      "PILOT_010"
+    ],
+    "train": [
+      "PILOT_001",
+      "PILOT_002",
+      "PILOT_003",
+      "PILOT_004",
+      "PILOT_005",
+      "PILOT_006",
+      "PILOT_007",
+      "PILOT_008"
+    ],
+    "validation": [
+      "PILOT_009"
+    ]
+  },
+  "record_count": 1512,
+  "split_counts": {
+    "test": 162,
+    "train": 1212,
+    "validation": 138
+  },
+  "split_example_type_counts": {
+    "test:negative": 108,
+    "test:positive": 54,
+    "train:negative": 816,
+    "train:positive": 396,
+    "validation:negative": 120,
+    "validation:positive": 18
+  },
+  "split_seed": 11,
+  "supported_change_types": [
+    "material",
+    "process"
+  ]
+}

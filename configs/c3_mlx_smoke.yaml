@@ -1,0 +1,28 @@
+model: mlx-community/Meta-Llama-3.1-8B-Instruct-4bit
+train: true
+data: data/training/mlx
+fine_tune_type: lora
+
+num_layers: 16
+batch_size: 1
+iters: 10
+val_batches: 2
+learning_rate: 0.0001
+
+steps_per_report: 1
+steps_per_eval: 5
+
+grad_accumulation_steps: 2
+grad_checkpoint: true
+mask_prompt: true
+
+max_seq_length: 768
+
+adapter_path: models/c3_smoke_adapter
+save_every: 10
+seed: 42
+
+lora_parameters:
+  rank: 16
+  scale: 20.0
+  dropout: 0.05

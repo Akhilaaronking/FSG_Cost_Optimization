@@ -127,6 +127,132 @@ class OllamaBackend:
         return data.get("response", "")
 
 
+class MLXLoRABackend:
+    backend_name = "mlx_lora"
+
+    def __init__(
+        self,
+        model_name: str = (
+            "mlx-community/"
+            "Meta-Llama-3.1-8B-Instruct-4bit"
+        ),
+        adapter_path: str | Path | None = None,
+    ):
+        self.model_name = model_name
+
+        if adapter_path is None:
+            adapter_path = (
+                Path(__file__).resolve().parents[2]
+                / "models"
+                / "c3_adapter"
+            )
+
+        self.adapter_path = str(
+            Path(adapter_path).expanduser().resolve()
+        )
+        self.quantization = "4-bit"
+        self._model = None
+        self._tokenizer = None
+
+    def _validate_adapter(self) -> None:
+        adapter_dir = Path(self.adapter_path)
+
+        required = [
+            adapter_dir / "adapter_config.json",
+            adapter_dir / "adapters.safetensors",
+        ]
+
+        missing = [
+            str(path)
+            for path in required
+            if not path.is_file()
+        ]
+
+        if missing:
+            raise FileNotFoundError(
+                "C3 MLX LoRA adapter is incomplete. "
+                "Missing: "
+                + ", ".join(missing)
+            )
+
+    def _load(self):
+        if (
+            self._model is not None
+            and self._tokenizer is not None
+        ):
+            return self._model, self._tokenizer
+
+        self._validate_adapter()
+
+        try:
+            from mlx_lm import load
+        except ImportError as exc:
+            raise RuntimeError(
+                "MLX-LM is required for the C3 backend."
+            ) from exc
+
+        self._model, self._tokenizer = load(
+            self.model_name,
+            adapter_path=self.adapter_path,
+        )
+
+        return self._model, self._tokenizer
+
+    def generate(
+        self,
+        prompt: str,
+        *,
+        seed: int | None = None,
+        temperature: float = 0.2,
+        max_tokens: int = 512,
+    ) -> str:
+        try:
+            import mlx.core as mx
+            from mlx_lm import generate as mlx_generate
+            from mlx_lm.sample_utils import make_sampler
+        except ImportError as exc:
+            raise RuntimeError(
+                "MLX and MLX-LM are required "
+                "for the C3 backend."
+            ) from exc
+
+        model, tokenizer = self._load()
+
+        if seed is not None:
+            mx.random.seed(seed)
+
+        messages = [
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ]
+
+        try:
+            formatted_prompt = (
+                tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=True,
+                )
+            )
+        except (AttributeError, TypeError):
+            formatted_prompt = prompt
+
+        sampler = make_sampler(
+            temp=temperature,
+        )
+
+        return mlx_generate(
+            model,
+            tokenizer,
+            prompt=formatted_prompt,
+            max_tokens=max_tokens,
+            sampler=sampler,
+            verbose=False,
+        )
+
+
 def ollama_available() -> bool:
     return subprocess.run(
         ["which", "ollama"],

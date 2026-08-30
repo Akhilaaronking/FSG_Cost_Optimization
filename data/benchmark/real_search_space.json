@@ -1,0 +1,298 @@
+{
+  "schema_version": "OptionA_v1_verified",
+  "status": "engineering_verified",
+  "note": "Engineering-reviewed admissible material and process search space. Baseline material/process values are synchronised with the frozen B4 pilot benchmark. Dimension envelopes marked CONFIRM are not active optimisation variables.",
+  "parts": [
+    {
+      "part_id": "PILOT_001",
+      "part_name": "Pedal box mounting bracket",
+      "current": {
+        "material_id": "AL_6061_T6",
+        "process_id": "CNC_MILLING"
+      },
+      "engineering_context": "Safety-relevant bracket under concentrated driver leg-load during braking. Bolted, non-axisymmetric geometry.",
+      "admissible_materials": {
+        "AL_6061_T6": "current baseline \u2014 good machinability/weldability, adequate strength for a milled bracket",
+        "AL_7075_T6": "standard motorsport substitution for higher load margin; less weldable but this part is milled/bolted, not welded, so that limitation does not apply"
+      },
+      "inadmissible_materials": {
+        "CF_PLATE_3K": "flat composite plate stock is not a validated substitute for a bolted, concentrated-load bracket without a proper laminate/layup design this project has not performed",
+        "PA6_SHEET": "polymer stiffness/strength inadequate for a safety-relevant, concentrated-load structural bracket"
+      },
+      "admissible_processes": {
+        "CNC_MILLING": "current baseline \u2014 correct for this 3D bracket geometry"
+      },
+      "inadmissible_processes": {
+        "CNC_TURNING": "NOT ALLOWED \u2014 turning produces axisymmetric parts; this bracket's geometry is not axisymmetric (matches Person A's own worked example)"
+      },
+      "dimension_envelope": {
+        "thickness_mm": [
+          4,
+          6
+        ]
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_002",
+      "part_name": "Suspension pickup plate",
+      "current": {
+        "material_id": "AL_7075_T6",
+        "process_id": "CNC_MILLING"
+      },
+      "engineering_context": "Safety-relevant, fatigue-loaded suspension hard point. Cyclic loading over a race weekend makes fatigue life, not just static strength, the governing concern.",
+      "admissible_materials": {
+        "STEEL_4130_CRMO": "preferred for a fatigue-critical suspension pickup \u2014 better fatigue tolerance and weldability than aluminium alloys at this stress level",
+        "AL_7075_T6": "admissible only if the part is bolted rather than welded, given 7075's comparatively poor fatigue/weld behaviour; flag for review if the current design is welded"
+      },
+      "inadmissible_materials": {
+        "AL_6061_T6": "lower strength margin than 4130 or 7075 for a fatigue-critical suspension hard point \u2014 flag for review, do not assume inadmissible without confirming actual load case",
+        "CF_PLATE_3K": "composite proxy has no established fatigue data in this project; do not use for a fatigue-critical safety part without further evidence",
+        "PA6_SHEET": "polymer inadequate for a suspension load path"
+      },
+      "admissible_processes": {
+        "CNC_MILLING": "suitable for a plate-form pickup",
+        "TIG_WELDING": "admissible only for the STEEL_4130_CRMO option, and only if the design is welded rather than bolted \u2014 confirm actual design"
+      },
+      "inadmissible_processes": {
+        "CNC_TURNING": "plate geometry, not axisymmetric"
+      },
+      "dimension_envelope": {
+        "thickness_mm": "CONFIRM \u2014 not established in prior project data"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_003",
+      "part_name": "Chassis mounting tab",
+      "current": {
+        "material_id": "STEEL_S235",
+        "process_id": "LASER_CUT_BEND"
+      },
+      "engineering_context": "Bolted or welded tab attaching a component to the chassis structure; moderate, largely static load.",
+      "admissible_materials": {
+        "AL_6061_T6": "standard choice for a moderately loaded, weldable/machinable mounting tab",
+        "STEEL_4130_CRMO": "admissible where the tab is welded directly to a steel chassis tube, for weld-material compatibility \u2014 confirm chassis material before selecting"
+      },
+      "inadmissible_materials": {
+        "CF_PLATE_3K": "no established basis for a welded/bolted tab application",
+        "PA6_SHEET": "inadequate for a structural chassis attachment"
+      },
+      "admissible_processes": {
+        "CNC_MILLING": "suitable for a tab geometry",
+        "WATERJET_CUT": "suitable if the tab is a simple flat profile rather than requiring 3D milled features \u2014 confirm actual geometry",
+        "TIG_WELDING": "admissible only for the STEEL_4130_CRMO option if welded to a steel chassis"
+      },
+      "inadmissible_processes": {
+        "CNC_TURNING": "tab geometry is not axisymmetric"
+      },
+      "dimension_envelope": {
+        "thickness_mm": "CONFIRM"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_004",
+      "part_name": "Roll-hoop bracing gusset",
+      "current": {
+        "material_id": "STEEL_4130_CRMO",
+        "process_id": "LASER_CUT_BEND"
+      },
+      "engineering_context": "Structural gusset bracing the roll-hoop, a primary occupant-safety structure under FSG rules. This is one of the least appropriate parts in the whole benchmark for aggressive material substitution given its direct safety role.",
+      "admissible_materials": {
+        "STEEL_4130_CRMO": "standard roll-hoop-adjacent material choice for strength and weldability to a steel roll-hoop",
+        "AL_6061_T6": "admissible only if the roll-hoop itself is aluminium and the gusset is welded/bolted to match \u2014 confirm roll-hoop material before allowing this substitution"
+      },
+      "inadmissible_materials": {
+        "CF_PLATE_3K": "composite substitution for a roll-hoop bracing element requires a level of structural validation (layup, energy absorption) this project has not performed \u2014 flag as inadmissible pending dedicated analysis, not a routine optimiser choice",
+        "PA6_SHEET": "wholly inadequate for a primary occupant-safety structural element"
+      },
+      "admissible_processes": {
+        "TIG_WELDING": "standard for a roll-hoop-adjacent steel gusset",
+        "CNC_MILLING": "admissible if the gusset is a machined rather than welded component \u2014 confirm actual design"
+      },
+      "inadmissible_processes": {
+        "CNC_TURNING": "gusset geometry is not axisymmetric"
+      },
+      "dimension_envelope": {
+        "note": "safety-critical part \u2014 recommend a narrower envelope than the standard \u00b130% used elsewhere, pending explicit supervisor/reviewer sign-off given the roll-hoop safety role"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_005",
+      "part_name": "Steering column spacer",
+      "current": {
+        "material_id": "POM_DELRIN",
+        "process_id": "CNC_TURNING"
+      },
+      "engineering_context": "Small spacer on the steering column; low structural load, primarily a positioning/clearance part.",
+      "admissible_materials": {
+        "AL_6061_T6": "standard low-load spacer material, easy to machine",
+        "NYLON_PA6": "admissible for a genuinely low-load spacer if the design does not rely on the spacer for structural stiffness \u2014 confirm the part's actual load path before allowing a polymer substitution on any steering-adjacent component"
+      },
+      "inadmissible_materials": {
+        "CF_PLATE_3K": "no engineering benefit for a simple low-load spacer; unnecessary cost/complexity"
+      },
+      "admissible_processes": {
+        "CNC_TURNING": "appropriate if the spacer is axisymmetric (a typical spacer/bushing form)",
+        "CNC_MILLING": "appropriate if the spacer has a non-axisymmetric or keyed profile"
+      },
+      "inadmissible_processes": {},
+      "dimension_envelope": {
+        "note": "CONFIRM \u2014 not established in prior project data"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_006",
+      "part_name": "Wheel bearing carrier bushing",
+      "current": {
+        "material_id": "NYLON_PA6",
+        "process_id": "CNC_TURNING"
+      },
+      "engineering_context": "Bushing carrying wheel-bearing loads \u2014 safety-relevant, moderate-to-high cyclic load, close dimensional tolerance for bearing fit.",
+      "admissible_materials": {
+        "STEEL_4130_CRMO": "preferred for a bearing-carrier application given wear resistance and fatigue behaviour under cyclic wheel loads",
+        "AL_7075_T6": "admissible only where a bearing insert/sleeve is used rather than the bushing bore itself acting as the wear surface \u2014 confirm design before allowing, since aluminium alone is a poor direct bearing-bore material"
+      },
+      "inadmissible_materials": {
+        "AL_6061_T6": "insufficient wear resistance for a direct bearing bore surface \u2014 flag for review rather than assume, pending confirmation of actual bearing interface design",
+        "CF_PLATE_3K": "flat-plate composite proxy has no established relevance to a turned bushing/bearing-carrier geometry",
+        "PA6_SHEET": "inadequate load capacity for a wheel-bearing carrier"
+      },
+      "admissible_processes": {
+        "CNC_TURNING": "correct process for an axisymmetric bushing with a precision bore"
+      },
+      "inadmissible_processes": {
+        "CNC_MILLING": "not the natural process for a precision axisymmetric bushing bore; admissible only for non-round features on the same part, not the bore itself"
+      },
+      "dimension_envelope": {
+        "note": "bore tolerance is bearing-fit-critical \u2014 recommend a narrow, bearing-catalogue-driven envelope rather than the standard \u00b130%, pending confirmation of the actual bearing part number (cf. the MISUMI-sourced bearing precedent already in this project)"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_007",
+      "part_name": "Aero mounting standoff",
+      "current": {
+        "material_id": "TI_GRADE5",
+        "process_id": "CNC_TURNING"
+      },
+      "engineering_context": "Standoff mounting an aerodynamic component; low-to-moderate load, mass-sensitive since it is unsprung/high aero-relevant mass.",
+      "admissible_materials": {
+        "AL_6061_T6": "standard low-mass standoff material",
+        "AL_7075_T6": "admissible where higher strength-to-weight is wanted, e.g. a longer or more loaded standoff",
+        "CF_PLATE_3K": "admissible as a mass-reduction option given this part's low structural criticality relative to the roll-hoop/suspension parts above, but the composite proxy's realistic small-batch cost (Section 7.7.1 elsewhere in this project) should be factored into any cost-driven optimiser comparison"
+      },
+      "inadmissible_materials": {
+        "PA6_SHEET": "insufficient stiffness for an aero-load-bearing standoff, which must resist aerodynamic deflection, not just static weight"
+      },
+      "admissible_processes": {
+        "CNC_MILLING": "suitable for a standoff with mounting features at both ends",
+        "CNC_TURNING": "suitable if the standoff is a simple axisymmetric post"
+      },
+      "inadmissible_processes": {},
+      "dimension_envelope": {
+        "note": "CONFIRM"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_008",
+      "part_name": "Battery box side panel",
+      "current": {
+        "material_id": "CF_PLATE_3K",
+        "process_id": "WATERJET_CUT"
+      },
+      "engineering_context": "Composite panel already established in this project as using the CF_PLATE_3K retail proxy material (Section 7.7.1, Section 5.5.6 elsewhere in this project). Enclosure panel, not a primary load path, but must contain the battery in a crash event.",
+      "admissible_materials": {
+        "CF_PLATE_3K": "current baseline, already established and cost-analysed elsewhere in this project",
+        "AL_6061_T6": "admissible heavier alternative if composite small-batch cost/availability is a concern for this part specifically"
+      },
+      "inadmissible_materials": {
+        "PA6_SHEET": "insufficient impact/containment performance for a battery enclosure panel without further evidence"
+      },
+      "admissible_processes": {
+        "CNC_MILLING": "if substituting to AL_6061_T6"
+      },
+      "inadmissible_processes": {},
+      "dimension_envelope": {
+        "note": "CONFIRM \u2014 panel geometry, likely area/thickness rather than a simple envelope"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_009",
+      "part_name": "3D-printed sensor mounting bracket",
+      "current": {
+        "material_id": "ABS_3DPRINT",
+        "process_id": "FDM_3DPRINT"
+      },
+      "engineering_context": "Already established elsewhere in this project as a PA6 filament FDM part (Section 10.14.1's conflation-trap example distinguishes NYLON_PA6_FILAMENT from NYLON_PA6 precisely because this part uses the filament form). Low load, sensor-carrying bracket.",
+      "admissible_materials": {
+        "NYLON_PA6_FILAMENT": "admissible nylon filament option for FDM printing"
+      },
+      "inadmissible_materials": {
+        "PA6_SHEET": "wrong form for this process \u2014 sheet stock is not FDM filament; this is precisely the conflation this project's B9 fine-tuning trap example was built to catch, and should never be silently substituted here",
+        "AL_6061_T6": "admissible only if the process is also changed away from FDM \u2014 metal FDM/machining is a different process entry, not a material swap alone"
+      },
+      "admissible_processes": {
+        "FDM_3DPRINT": "current baseline, correct for a low-load sensor bracket"
+      },
+      "inadmissible_processes": {
+        "CNC_MILLING": "admissible only paired with a material change to a millable stock, not as a same-material process swap"
+      },
+      "dimension_envelope": {
+        "note": "CONFIRM"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    },
+    {
+      "part_id": "PILOT_010",
+      "part_name": "Wiring harness clip",
+      "current": {
+        "material_id": "NYLON_PA6_FILAMENT",
+        "process_id": "FDM_3DPRINT"
+      },
+      "engineering_context": "Already established elsewhere in this project as fastener-cost-dominated \u2014 the single fastener costs more than the part's combined material and process cost (Section 7.5.9 elsewhere in this project). Very low load, positioning/retention only.",
+      "admissible_materials": {
+        "NYLON_PA6": "standard low-load clip material",
+        "AL_6061_T6": "admissible but likely an unnecessary cost/mass increase for a pure retention clip \u2014 flag as low-value substitution"
+      },
+      "inadmissible_materials": {
+        "CF_PLATE_3K": "no engineering benefit for a low-load retention clip; composite proxy cost would dominate for no functional gain",
+        "STEEL_4130_CRMO": "unnecessary mass/cost for a low-load clip"
+      },
+      "admissible_processes": {
+        "FDM_3DPRINT": "suitable low-cost option for a simple low-load clip geometry",
+        "CNC_MILLING": "admissible for the AL_6061_T6 option"
+      },
+      "inadmissible_processes": {},
+      "dimension_envelope": {
+        "note": "CONFIRM \u2014 given this part's cost is fastener-dominated rather than material/process-dominated, dimensional optimisation here has limited leverage regardless of envelope chosen"
+      },
+      "engineering_verified": true,
+      "verification_status": "APPROVED_BY_PERSON_B"
+    }
+  ],
+  "verification": {
+    "review_status": "APPROVED",
+    "reviewer_role": "Person B \u2014 engineering data and validation",
+    "verification_date": "2026-08-25",
+    "optimisation_scope": [
+      "material",
+      "process"
+    ],
+    "geometry_scope": "NOT_ENABLED_UNLESS_NUMERIC_DIMENSION_BOUNDS_EXIST"
+  }
+}
