@@ -1,0 +1,108 @@
+{
+  "condition": "C2",
+  "condition_spec": {
+    "decision_variables": [
+      "material_id",
+      "process_id"
+    ],
+    "driver": "GenerativeDriver",
+    "generator_fn": "src.llm.conditions.generate_c2",
+    "nsga2": null,
+    "proposal_application": "atomic_vs_frozen_baseline",
+    "target_parts": [
+      "PILOT_001",
+      "PILOT_002",
+      "PILOT_003",
+      "PILOT_004",
+      "PILOT_005",
+      "PILOT_006",
+      "PILOT_007",
+      "PILOT_008",
+      "PILOT_009",
+      "PILOT_010"
+    ]
+  },
+  "created_utc": "2026-08-31T15:09:47Z",
+  "deviations": [],
+  "harness_version": "A12.1",
+  "identity": {
+    "adapter": {
+      "adapter_id": null
+    },
+    "benchmark": {
+      "frozen": true,
+      "frozen_date": "2026-08-22 (v2 correction)",
+      "name": "B4_pilot_10_parts",
+      "path": "data/benchmark/pilot_10_parts_ground_truth.json",
+      "sha256": "sha256:80a14a6eb7bb240e643674249eb24c11936e929b25377876be2de4f358196d92",
+      "version": "v2"
+    },
+    "budget": {
+      "definition": "deterministic_objective_evaluations",
+      "duplicate_policy": "cache_by_canonical_bom_hash; a cache hit does NOT consume budget",
+      "n_eval": 50,
+      "proposal_attempt_cap": 1500
+    },
+    "git": {
+      "commit": "d015be2e21af6f9714d19d6f456e664d56f00478",
+      "tracked_dirty": false,
+      "untracked_files": 1
+    },
+    "model": {
+      "backend_name": "ollama",
+      "decode": {
+        "max_tokens": 512,
+        "seed_supported": true,
+        "temperature": 0.2
+      },
+      "model_digest": "46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+      "model_id": "llama3.1:8b",
+      "role": "base"
+    },
+    "prompt": {
+      "builder_module": "src.llm.prompt_builder",
+      "prompt_template_sha256": "afb31a2a53948073ed0ec6f53e56b23bf7048343e996fbcd5a9b7a28c8b60d8d",
+      "prompt_version": "A10.1"
+    },
+    "retrieval": {
+      "corpus_path": "data/rag/corpus.jsonl",
+      "corpus_sha256": "sha256:fc43398e0dfcf007c5eb66ccf5d07e517d0cde863f70b08a027cf95527d54e61",
+      "corpus_version": "A9.1",
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2",
+      "rag_enabled": true,
+      "top_k": 5,
+      "vector_backend": "numpy_cosine"
+    },
+    "ruleset_snapshot": {
+      "deterministic_constraints_sha256": "sha256:45e06901cffc246a8b9a24ec25b0e6dacba71275f7e10359f8e5e6d5d593412e",
+      "evaluator_version": "A6.1",
+      "routed_rule_counts": {
+        "compliance_rules": 8,
+        "no_active_constraints": 1,
+        "optimizer_rules": 7,
+        "quality_gates": 1,
+        "review_rules": 9,
+        "special_deterministic_rules": 1,
+        "total_entries": 27
+      },
+      "rule_classification_sha256": "sha256:755614d48f3e4452b0e37f077d682fc55959ba32fb9603d88745bd118a994dd6"
+    },
+    "seed": 7,
+    "source_snapshot": {
+      "registry_files": {
+        "fasteners.csv": "sha256:f386e46b1c988e701d3fdb064c53ae2859044c469e9c5b459b3748b5887ca79d",
+        "materials.csv": "sha256:42798d2e791bbce4c8d2278b3522a0e3909e26af75c2062702ebc600339118b8",
+        "processes.csv": "sha256:a89eb101c7895e1774bf1c43346cd98331e6ecdfaf2e29f8fac0612f21c59723",
+        "suppliers.csv": "sha256:3370317fa212a849a2239773228478856b7d6fb358ebe061d8a67596e93c625a"
+      },
+      "search_space": {
+        "path": "data/benchmark/real_search_space.json",
+        "schema_version": "OptionA_v1_verified",
+        "sha256": "sha256:8ebfed723e369ed0240495951e6b755dbc39bca1304a55c41d6ed4201a7108f7",
+        "status": "engineering_verified"
+      }
+    }
+  },
+  "run_id": "sha256:0d147661763c03c8",
+  "seed": 7
+}

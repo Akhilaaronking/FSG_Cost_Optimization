@@ -1,0 +1,87 @@
+{
+  "archive_size": 3,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C2",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 124.86999999999998,
+        "cost_improvement_pct": 40.01987052112044,
+        "mass_improvement_pct": -30.428263984553517,
+        "mass_kg": -0.19800000000000006
+      },
+      "candidate_id": "C2_s0_p0008",
+      "cost_eur": 187.15,
+      "mass_kg": 0.8487108000000001,
+      "modifications": [
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        }
+      ],
+      "objective_vector": [
+        187.15,
+        0.8487108000000001
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 2.7299999999999613,
+        "cost_improvement_pct": 0.8749439138516638,
+        "mass_improvement_pct": 0.0,
+        "mass_kg": 0.0
+      },
+      "candidate_id": "C2_s0_p0003",
+      "cost_eur": 309.29,
+      "mass_kg": 0.6507108,
+      "modifications": [
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_003"
+        }
+      ],
+      "objective_vector": [
+        309.29,
+        0.6507108
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 1.0299999999999727,
+        "cost_improvement_pct": 0.3301070444202207,
+        "mass_improvement_pct": 0.946657101741673,
+        "mass_kg": 0.006160000000000054
+      },
+      "candidate_id": "C2_s0_p0012",
+      "cost_eur": 310.99,
+      "mass_kg": 0.6445508,
+      "modifications": [
+        {
+          "baseline": "AL_7075_T6",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_002"
+        }
+      ],
+      "objective_vector": [
+        310.99,
+        0.6445508
+      ]
+    }
+  ],
+  "hypervolume": 8.867432889439998,
+  "normalized_hypervolume": 0.0303294804506807,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:e59b6ad26417272f",
+  "seed": 0
+}

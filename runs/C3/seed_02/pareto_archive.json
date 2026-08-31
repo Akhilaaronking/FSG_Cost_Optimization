@@ -1,0 +1,17 @@
+{
+  "archive_size": 0,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C3",
+  "entries": [],
+  "hypervolume": 0.0,
+  "normalized_hypervolume": 0.0,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:eec308ab790881bd",
+  "seed": 2
+}

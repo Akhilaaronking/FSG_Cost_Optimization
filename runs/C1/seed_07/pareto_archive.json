@@ -1,0 +1,87 @@
+{
+  "archive_size": 3,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C1",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 124.86999999999998,
+        "cost_improvement_pct": 40.01987052112044,
+        "mass_improvement_pct": -30.428263984553517,
+        "mass_kg": -0.19800000000000006
+      },
+      "candidate_id": "C1_s7_p0001",
+      "cost_eur": 187.15,
+      "mass_kg": 0.8487108000000001,
+      "modifications": [
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        }
+      ],
+      "objective_vector": [
+        187.15,
+        0.8487108000000001
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 4.979999999999961,
+        "cost_improvement_pct": 1.5960515351579905,
+        "mass_improvement_pct": 0.7523926143534215,
+        "mass_kg": 0.004895900000000064
+      },
+      "candidate_id": "C1_s7_p0010",
+      "cost_eur": 307.04,
+      "mass_kg": 0.6458149,
+      "modifications": [
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        }
+      ],
+      "objective_vector": [
+        307.04,
+        0.6458149
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 1.0299999999999727,
+        "cost_improvement_pct": 0.3301070444202207,
+        "mass_improvement_pct": 0.946657101741673,
+        "mass_kg": 0.006160000000000054
+      },
+      "candidate_id": "C1_s7_p0005",
+      "cost_eur": 310.99,
+      "mass_kg": 0.6445508,
+      "modifications": [
+        {
+          "baseline": "AL_7075_T6",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_002"
+        }
+      ],
+      "objective_vector": [
+        310.99,
+        0.6445508
+      ]
+    }
+  ],
+  "hypervolume": 9.179591554439998,
+  "normalized_hypervolume": 0.031397163763954246,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:817d109321d26409",
+  "seed": 7
+}

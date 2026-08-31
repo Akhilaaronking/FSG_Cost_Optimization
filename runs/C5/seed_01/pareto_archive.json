@@ -1,0 +1,332 @@
+{
+  "archive_size": 4,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C5",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 30.029999999999973,
+        "cost_improvement_pct": 9.62438305236843,
+        "mass_improvement_pct": -1.111722749952824,
+        "mass_kg": -0.007234100000000021
+      },
+      "candidate_id": "cand_00007",
+      "cost_eur": 281.99,
+      "mass_kg": 0.6579449,
+      "modifications": [
+        {
+          "baseline": "AL_6061_T6",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "STEEL_4130_CRMO",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "CNC_TURNING",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "NYLON_PA6",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_006"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "NYLON_PA6_FILAMENT",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        281.99,
+        0.6579449
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 148.76,
+        "cost_improvement_pct": 47.67643099801295,
+        "mass_improvement_pct": -24.475404434658223,
+        "mass_kg": -0.15926410000000002
+      },
+      "candidate_id": "cand_00041",
+      "cost_eur": 163.26,
+      "mass_kg": 0.8099749,
+      "modifications": [
+        {
+          "baseline": "AL_6061_T6",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "CNC_TURNING",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CNC_TURNING",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "NYLON_PA6_FILAMENT",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        },
+        {
+          "baseline": "FDM_3DPRINT",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        163.26,
+        0.8099749
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 151.11999999999998,
+        "cost_improvement_pct": 48.432792769694245,
+        "mass_improvement_pct": -25.99491202543436,
+        "mass_kg": -0.16915170000000013
+      },
+      "candidate_id": "cand_00045",
+      "cost_eur": 160.9,
+      "mass_kg": 0.8198625000000002,
+      "modifications": [
+        {
+          "baseline": "AL_6061_T6",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "CNC_TURNING",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "NYLON_PA6",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_006"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CNC_TURNING",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        },
+        {
+          "baseline": "FDM_3DPRINT",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        160.9,
+        0.8198625000000002
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 34.77999999999997,
+        "cost_improvement_pct": 11.14672136401512,
+        "mass_improvement_pct": -1.1471148165974865,
+        "mass_kg": -0.007464400000000038
+      },
+      "candidate_id": "cand_00077",
+      "cost_eur": 277.24,
+      "mass_kg": 0.6581752000000001,
+      "modifications": [
+        {
+          "baseline": "AL_6061_T6",
+          "candidate": "AL_7075_T6",
+          "field": "material_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "LASER_CUT_BEND",
+          "candidate": "TIG_WELDING",
+          "field": "process_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "CNC_TURNING",
+          "candidate": "CNC_MILLING",
+          "field": "process_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "NYLON_PA6_FILAMENT",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        }
+      ],
+      "objective_vector": [
+        277.24,
+        0.6581752000000001
+      ]
+    }
+  ],
+  "hypervolume": 11.943602978039996,
+  "normalized_hypervolume": 0.04085097429545164,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:1eedc0d187ce0f31",
+  "seed": 1
+}

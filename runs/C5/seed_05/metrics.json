@@ -1,0 +1,78 @@
+{
+  "budget": {
+    "n_eval_consumed": 50,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 0,
+    "proposal_attempts": 0
+  },
+  "condition": "C5",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 395.85138826583346,
+    "t100_sec_per_100_proposals": 0.0966818321030587,
+    "total_tokens": null,
+    "wall_clock_sec": 0.04834091605152935
+  },
+  "hallucination": {
+    "categories": {},
+    "hr_all_proposals": null,
+    "hr_schema_valid_only": null
+  },
+  "multiobjective": {
+    "delta_hv": 19.135818729040004,
+    "hypervolume": 19.135818729040004,
+    "ideal_point": [
+      156.72,
+      0.5896536
+    ],
+    "min_ideal_point_distance": 0.5448258808882639,
+    "normalized_hypervolume": 0.06545067183325938,
+    "pareto_archive_size": 5,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": 156.72,
+    "cost_of_lowest_mass_eur": 299.95,
+    "lowest_mass_kg": 0.5896536,
+    "mass_of_best_cost_kg": 0.8488737000000001,
+    "n_pareto_improving": 0
+  },
+  "run_id": "sha256:9799664512942e8d",
+  "seed": 5,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "d015be2e21af",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "COMPLETE",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 0,
+      "identifier": 0,
+      "objective_evaluated": 0,
+      "parse": 0,
+      "schema": 0
+    },
+    "n_prop": 0,
+    "rates": {
+      "applicability": null,
+      "identifier": null,
+      "objective_evaluated": null,
+      "parse": null,
+      "schema": null
+    }
+  }
+}
