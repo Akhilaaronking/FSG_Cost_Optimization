@@ -43,6 +43,56 @@ PROMPT_VERSION = "A10.1"
 CONDITIONS = ("C1", "C2", "C3", "C5")
 GENERATIVE_CONDITIONS = ("C1", "C2", "C3")
 
+# C4 condition labels (docs/A13). The run's `condition` string is the
+# grouping label; backend role + ablation are also in condition_spec.
+C4_CANONICAL = "C4"          # fine-tuned (C3) backend + RAG + tool-loop
+C4_BASE = "C4_base"          # Ollama base backend + RAG + tool-loop
+C4_ABLATION_SUFFIXES = ("no_rag", "no_schema", "no_validator")
+C4_ABLATION_LABELS = tuple(f"{C4_BASE}_{s}" for s in C4_ABLATION_SUFFIXES)
+C4_LABELS = (C4_CANONICAL, C4_BASE) + C4_ABLATION_LABELS
+
+C4_LOOK_BACK_L = 10          # eq 4.2 look-back window   (LOCKED A13 section 13)
+C4_EPSILON_HV = 0.1          # eq 4.2 convergence epsilon (absolute HV)
+C4_RETRY_CAP_K = 3           # per-selection retry cap
+C4_SELECT_POLICY = "archive_guided_v1"
+C4_FEEDBACK_MODE = "prev_eval+archive+rejection"
+C4_PROMPT_VERSION = "A13.C4.v1"
+C4_PROMPT_TEMPLATE_TAG = "A13.C4.v1"
+
+
+def is_c4(condition: str) -> bool:
+    return condition in C4_LABELS
+
+
+def c4_ablation(condition: str) -> str | None:
+    for suffix in C4_ABLATION_SUFFIXES:
+        if condition == f"{C4_BASE}_{suffix}":
+            return suffix
+    return None
+
+
+def _c4_backend_condition(condition: str) -> str:
+    # canonical C4 reuses the C3 fine-tuned backend identity;
+    # C4_base* reuses C2's Ollama + RAG identity.
+    return "C3" if condition == C4_CANONICAL else "C2"
+
+
+def c4_loop_spec(condition: str, n_eval: int) -> dict:
+    return {
+        "budget_definition": "deterministic_objective_evaluations",
+        "n_eval": int(n_eval),
+        "convergence": {
+            "look_back_L": C4_LOOK_BACK_L,
+            "epsilon_hv": C4_EPSILON_HV,
+            "variant": "delta",
+        },
+        "retry_cap_K": C4_RETRY_CAP_K,
+        "proposal_attempt_cap": PROPOSAL_ATTEMPT_CAP,
+        "select_policy": C4_SELECT_POLICY,
+        "feedback_mode": C4_FEEDBACK_MODE,
+        "ablation": c4_ablation(condition),
+    }
+
 # Full thesis protocol (11.5): ten independent seeds, the same set
 # across paired conditions. Calibration (docs/A12 section 9) put the
 # whole C1/C2/C3/C5 sweep at ~60 min, so no reduced-seed compromise.
@@ -282,6 +332,8 @@ def build_source_identity() -> dict:
 
 def build_model_identity(condition: str) -> dict | None:
     """M -- base model. None for C5 (no model)."""
+    if is_c4(condition):
+        return build_model_identity(_c4_backend_condition(condition))
     if condition in ("C1", "C2"):
         return {
             "role": "base",
@@ -302,7 +354,9 @@ def build_model_identity(condition: str) -> dict | None:
 
 
 def build_adapter_identity(condition: str) -> dict:
-    """A -- fine-tune adapter. Only C3 carries one."""
+    """A -- fine-tune adapter. C3 and canonical C4 carry one."""
+    if condition == C4_CANONICAL:
+        return build_adapter_identity("C3")
     if condition != "C3":
         return {"adapter_id": None}
 
@@ -322,6 +376,14 @@ def build_prompt_identity(condition: str) -> dict | None:
     """P -- prompt version. None for C5."""
     if condition == "C5":
         return None
+    if is_c4(condition):
+        return {
+            "prompt_version": C4_PROMPT_VERSION,
+            "prompt_template_sha256": sha256_text(
+                PROMPT_TEMPLATE_STRUCTURE + "\n" + C4_PROMPT_TEMPLATE_TAG
+            ),
+            "builder_module": "src.llm.prompt_builder:build_c4_prompt",
+        }
     return {
         "prompt_version": PROMPT_VERSION,
         "prompt_template_sha256": sha256_text(
@@ -337,6 +399,10 @@ def build_retrieval_identity(condition: str) -> dict | None:
         return None
     if condition == "C1":
         return {"rag_enabled": False}
+    if is_c4(condition):
+        if c4_ablation(condition) == "no_rag":
+            return {"rag_enabled": False}
+        return build_retrieval_identity("C2")
 
     manifest = _load_json(CORPUS_MANIFEST_PATH)
     return {
@@ -360,7 +426,7 @@ def build_budget(condition: str, n_eval: int) -> dict:
         "duplicate_policy": DUPLICATE_POLICY,
         "proposal_attempt_cap": (
             PROPOSAL_ATTEMPT_CAP
-            if condition in GENERATIVE_CONDITIONS
+            if (condition in GENERATIVE_CONDITIONS or is_c4(condition))
             else None
         ),
     }
@@ -375,12 +441,13 @@ def build_identity(condition: str, seed: int, n_eval: int) -> dict:
     determines the run_id. `created_utc` and other bookkeeping stay out
     of it so the id is reproducible.
     """
-    if condition not in CONDITIONS:
+    if condition not in CONDITIONS and not is_c4(condition):
         raise ValueError(
-            f"Unknown condition {condition!r}; expected one of {CONDITIONS}"
+            f"Unknown condition {condition!r}; expected one of "
+            f"{CONDITIONS} or a C4 label {C4_LABELS}"
         )
 
-    return {
+    identity = {
         "benchmark": build_benchmark_identity(),
         "ruleset_snapshot": build_ruleset_identity(),
         "source_snapshot": build_source_identity(),
@@ -392,6 +459,23 @@ def build_identity(condition: str, seed: int, n_eval: int) -> dict:
         "budget": build_budget(condition, n_eval),
         "git": git_identity(),
     }
+    if is_c4(condition):
+        # the tool-loop's identity-bearing method parameters -- so an
+        # ablation (no_schema / no_validator, which do not touch M/A/P/Q)
+        # and any change to the frozen L / eps / K produce a new run_id
+        # (11.4, and 4.9's "frozen before final runs and reported").
+        identity["method"] = {
+            "driver": "C4Driver",
+            "ablation": c4_ablation(condition),
+            "select_policy": C4_SELECT_POLICY,
+            "feedback_mode": C4_FEEDBACK_MODE,
+            "convergence": {
+                "look_back_L": C4_LOOK_BACK_L,
+                "epsilon_hv": C4_EPSILON_HV,
+            },
+            "retry_cap_K": C4_RETRY_CAP_K,
+        }
+    return identity
 
 
 def _condition_spec(
@@ -399,7 +483,24 @@ def _condition_spec(
     *,
     target_parts: list[str],
     nsga2_spec: dict | None,
+    n_eval: int,
 ) -> dict:
+    if is_c4(condition):
+        return {
+            "driver": "C4Driver",
+            "backend_role": (
+                "fine_tuned"
+                if condition == C4_CANONICAL
+                else "base"
+            ),
+            "generator_fn": "src.experiment.c4_driver.C4Driver",
+            "decision_variables": ["material_id", "process_id"],
+            "target_parts": list(target_parts),
+            "proposal_application": "compounding_on_working_state",
+            "c4_loop": c4_loop_spec(condition, n_eval),
+            "nsga2": None,
+        }
+
     if condition in GENERATIVE_CONDITIONS:
         generator_fn = {
             "C1": "src.llm.conditions.generate_c1",
@@ -457,6 +558,7 @@ def build_run_config(
             condition,
             target_parts=target_parts,
             nsga2_spec=nsga2_spec,
+            n_eval=n_eval,
         ),
         "deviations": list(deviations) if deviations is not None else [],
     }

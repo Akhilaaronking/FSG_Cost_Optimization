@@ -296,3 +296,126 @@ def test_sweep_refuses_run_id_mismatch_on_rerun(tmp_path):
     # same identity except budget -> different run_id -> refused (11.4)
     with pytest.raises(ValueError, match="11.4"):
         run_sweep(budget=20, **kwargs)
+
+
+# ----------------------------------------------------------------------
+# C4 wiring (A13 step 5)
+# ----------------------------------------------------------------------
+
+
+def test_parse_conditions_accepts_c4_labels_and_orders_after_c3():
+    assert parse_conditions("C4_base") == ["C4_base"]
+    assert parse_conditions("C5,C4_base,C1") == ["C1", "C4_base", "C5"]
+    assert parse_conditions("all") == ["C1", "C2", "C3", "C5"]  # C4 opt-in
+    with pytest.raises(ValueError, match="unknown condition"):
+        parse_conditions("C4_bogus")
+
+
+def test_dry_run_writes_c4_loop_spec(tmp_path):
+    run_sweep(
+        conditions=["C4_base", "C4_base_no_rag"],
+        seeds=[0],
+        budget=50,
+        parts_spec="all",
+        out_root=tmp_path,
+        overwrite=False,
+        dry_run=True,
+        log=lambda *_: None,
+    )
+    cfg = json.loads(
+        (tmp_path / "runs" / "C4_base" / "seed_00" / "run_config.json").read_text()
+    )
+    loop = cfg["condition_spec"]["c4_loop"]
+    assert cfg["condition_spec"]["driver"] == "C4Driver"
+    assert loop["n_eval"] == 50
+    assert loop["convergence"] == {
+        "look_back_L": 10,
+        "epsilon_hv": 0.1,
+        "variant": "delta",
+    }
+    assert loop["retry_cap_K"] == 3
+    assert loop["ablation"] is None
+
+    abl = json.loads(
+        (
+            tmp_path / "runs" / "C4_base_no_rag" / "seed_00" / "run_config.json"
+        ).read_text()
+    )
+    assert abl["condition_spec"]["c4_loop"]["ablation"] == "no_rag"
+    assert abl["identity"]["retrieval"] == {"rag_enabled": False}
+    assert abl["run_id"] != cfg["run_id"]
+
+
+def _c4_generator_factory(condition):
+    responses = [
+        _proposal("PILOT_001", "AL_7075_T6"),
+        _proposal("PILOT_002", "STEEL_4130_CRMO"),
+        _proposal("PILOT_003", "AL_6061_T6"),
+    ]
+    return ProposalGenerator(
+        CyclingBackend(responses), registry=DataRegistry()
+    )
+
+
+def _c4_evaluator(bom):
+    deltas = {
+        ("PILOT_001", "AL_7075_T6"): (-60.0, -0.04),
+        ("PILOT_002", "STEEL_4130_CRMO"): (-10.0, +0.02),
+        ("PILOT_003", "AL_6061_T6"): (+8.0, -0.03),
+    }
+    cost, mass = 312.02, 0.6507
+    for p in bom["parts"]:
+        d = deltas.get((p["part_id"], p["material_id"]))
+        if d:
+            cost += d[0]
+            mass += d[1]
+    return {
+        "objective_vector": [cost, mass],
+        "objectives": {"cost_eur": cost, "mass_kg": mass},
+        "constraints": {"status": "NOT_EVALUATED", "feasible": None},
+    }
+
+
+def test_sweep_runs_c4_base_end_to_end(tmp_path):
+    result = run_sweep(
+        conditions=["C4_base"],
+        seeds=[0, 1],
+        budget=6,
+        parts_spec="all",
+        out_root=tmp_path,
+        overwrite=False,
+        dry_run=False,
+        skip_c3_probe=True,
+        generator_factory=_c4_generator_factory,
+        retriever_factory=lambda c: None,
+        generative_evaluator=_c4_evaluator,
+        log=lambda *_: None,
+    )
+
+    for seed in (0, 1):
+        d = tmp_path / "runs" / "C4_base" / f"seed_{seed:02d}"
+        for name in (
+            "run_config.json",
+            "events.jsonl",
+            "metrics.json",
+            "pareto_archive.json",
+        ):
+            assert (d / name).is_file(), name
+        m = json.loads((d / "metrics.json").read_text())
+        assert m["condition"] == "C4_base"
+        assert m["c4"] is not None
+        assert m["c4"]["steps"] >= 1
+        # agentic steps feed the funnel
+        assert m["validity_funnel"]["n_prop"] == m["c4"]["steps"]
+
+    notes = result["notes"]
+    assert any("C4_base TOOL-LOOP" in n for n in notes)
+
+    hyp = list(
+        __import__("csv").DictReader(
+            (tmp_path / "results" / "hypothesis_tests.csv").open()
+        )
+    )
+    # no C5 present -> H2 pending
+    h2 = next(r for r in hyp if r["hypothesis"] == "H2")
+    assert h2["decision"] == "PENDING_C4"

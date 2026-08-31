@@ -21,8 +21,10 @@ Outputs, under --out (default "."):
 
 import argparse
 import json
+import statistics
 import sys
 import time
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -56,9 +58,19 @@ from src.experiment.metrics import (
     write_metrics,
 )
 from src.experiment.probe import probe_c3
+from src.experiment.identity import C4_CANONICAL, C4_LABELS, is_c4
 
-# fixed non-interleaved order
+# fixed non-interleaved order: C1 -> C2 -> C3 -> C4* -> C5
 CONDITION_ORDER = ("C1", "C2", "C3", "C5")
+_ORDER_KEY = {"C1": 0, "C2": 1, "C3": 2, "C5": 4}
+
+
+def _order_key(condition: str) -> int:
+    return _ORDER_KEY.get(condition, 3)  # any C4 label sorts after C3
+
+
+def _ordered(conditions) -> list[str]:
+    return sorted(set(conditions), key=lambda c: (_order_key(c), c))
 
 
 # ----------------------------------------------------------------------
@@ -74,15 +86,20 @@ def parse_seeds(text: str) -> list[int]:
     return [int(part) for part in text.split(",") if part.strip() != ""]
 
 
+_KNOWN_CONDITIONS = set(CONDITIONS) | set(C4_LABELS)
+
+
 def parse_conditions(text: str) -> list[str]:
+    # "all" is the base matrix C1/C2/C3/C5. C4 is opt-in by label
+    # (C4, C4_base, C4_base_no_rag, ...) because it is expensive.
     if text.strip().lower() == "all":
         chosen = set(CONDITION_ORDER)
     else:
-        chosen = {c.strip().upper() for c in text.split(",") if c.strip()}
-    unknown = chosen - set(CONDITIONS)
+        chosen = {c.strip() for c in text.split(",") if c.strip()}
+    unknown = chosen - _KNOWN_CONDITIONS
     if unknown:
         raise ValueError(f"unknown condition(s): {sorted(unknown)}")
-    return [c for c in CONDITION_ORDER if c in chosen]
+    return _ordered(chosen)
 
 
 def parse_parts(text: str, baseline_bom: dict) -> list[str]:
@@ -105,21 +122,25 @@ def build_generator(condition: str):
     from src.data.registry import DataRegistry
     from src.llm.generator import ProposalGenerator
 
-    if condition in ("C1", "C2"):
-        from src.llm.backend import OllamaBackend
-
-        backend = OllamaBackend(OLLAMA_MODEL_ID)
-    elif condition == "C3":
+    fine_tuned = condition == "C3" or condition == C4_CANONICAL
+    if fine_tuned:
         from src.llm.backend import MLXLoRABackend
 
         backend = MLXLoRABackend(model_name=MLX_BASE_MODEL)
     else:
-        raise ValueError(condition)
+        from src.llm.backend import OllamaBackend
+
+        # the C4-Schema ablation runs Ollama without structured output
+        backend = OllamaBackend(
+            OLLAMA_MODEL_ID,
+            enforce_schema=(condition != "C4_base_no_schema"),
+        )
     return ProposalGenerator(backend, registry=DataRegistry())
 
 
 def build_retriever(condition: str):
-    if condition not in ("C2", "C3"):
+    rag_off = condition in ("C1",) or condition == "C4_base_no_rag"
+    if rag_off or condition == "C5":
         return None
     from src.rag.embeddings import SentenceTransformerEmbedder
     from src.rag.retriever import RagRetriever
@@ -171,7 +192,17 @@ def run_one(
         if_exists="overwrite" if overwrite else "error",
     )
     try:
-        if condition in GENERATIVE_CONDITIONS:
+        if is_c4(condition):
+            from src.experiment.c4_driver import C4Driver
+
+            driver = C4Driver(
+                cfg,
+                generator=generator,
+                baseline_bom=baseline_bom,
+                retriever=retriever,
+                evaluator=generative_evaluator,
+            )
+        elif condition in GENERATIVE_CONDITIONS:
             driver = GenerativeDriver(
                 cfg,
                 generator=generator,
@@ -251,26 +282,33 @@ def run_sweep(
     all_metrics: list[dict] = []
     blocked: list[dict] = []
 
-    for condition in [c for c in CONDITION_ORDER if c in conditions]:
+    for condition in _ordered(conditions):
         deviations = None
 
-        if condition == "C3" and not dry_run and not skip_c3_probe:
+        # canonical C4 and C3 both use the MLX fine-tuned backend
+        if (
+            condition in ("C3", C4_CANONICAL)
+            and not dry_run
+            and not skip_c3_probe
+        ):
             probe = probe_c3(deep=True)
             log(probe.summary_line())
             if not probe.ok:
                 blocked.append(
-                    {"condition": "C3", "probe": probe.as_dict()}
+                    {"condition": condition, "probe": probe.as_dict()}
                 )
                 log(
-                    "C3: SKIPPED for the sweep (blocked, environment); "
-                    "C1/C2/C5 unaffected."
+                    f"{condition}: SKIPPED (blocked, environment); "
+                    "other conditions unaffected."
                 )
                 continue
-            deviations = None
 
         generator = None
         retriever = None
-        if condition in GENERATIVE_CONDITIONS and not dry_run:
+        if (
+            (condition in GENERATIVE_CONDITIONS or is_c4(condition))
+            and not dry_run
+        ):
             log(f"[{condition}] loading backend + retriever ...")
             generator = generator_factory(condition)
             retriever = retriever_factory(condition)
@@ -482,6 +520,40 @@ def findings(all_metrics: list[dict], blocked: list[dict]) -> list[str]:
             "measurable C1->C2->C3 signal here is candidate selection and "
             "the HV / validity-funnel trend (docs/A12 section 8)."
         )
+
+    # 3. C4 tool-loop summary
+    c4 = [
+        m
+        for m in all_metrics
+        if m.get("c4") and m["condition"].startswith("C4")
+    ]
+    if c4:
+        by_c4: dict[str, list[dict]] = {}
+        for m in c4:
+            by_c4.setdefault(m["condition"], []).append(m)
+        for label, runs in sorted(by_c4.items()):
+            n = len(runs)
+            stop = Counter(r["c4"]["stop_rule"] for r in runs)
+            acc = statistics.fmean(r["c4"]["acceptance_rate"] for r in runs)
+            nev = sorted(r["budget"]["n_eval_consumed"] for r in runs)
+            hv = sorted(r["multiobjective"]["hypervolume"] for r in runs)
+            if all(r["budget"]["n_eval_consumed"] == 0 for r in runs):
+                notes.append(
+                    f"{label} PRODUCED NO EVALUATED CANDIDATES: all {n} "
+                    "seeds ran the loop but no proposal reached "
+                    "deterministic evaluation -- treat its rows as a "
+                    "condition-level defect, not a result (cf. C3)."
+                )
+                continue
+            notes.append(
+                f"{label} TOOL-LOOP: {n} seeds | stop rules "
+                f"{dict(stop)} | n_eval {nev[0]}-{nev[-1]} of "
+                f"{runs[0]['budget']['n_eval_target']} | acceptance rate "
+                f"mean {acc:.2f} | HV median {hv[len(hv) // 2]:.3f}. "
+                "Unlike C1/C2/C3, C4 compounds changes on a working "
+                "state, so it can consume the full budget -- read "
+                "C4-vs-C5 hypervolume as like-for-like (eq 11.4 / 11.21)."
+            )
 
     if blocked:
         for entry in blocked:
