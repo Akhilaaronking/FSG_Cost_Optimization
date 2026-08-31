@@ -3,12 +3,62 @@
 ## Status
 
 The unified experiment harness for conditions **C1, C2, C3, C5** is implemented
-and tested (150 A12 tests; full repository suite 304 passing). The real 10-seed
-sweep has **not yet been executed** — this document describes the built harness
-and the protocol it will run.
+and tested (150 A12 tests; full repository suite 304 passing).
+
+**The full 10-seed sweep was executed on 2026-08-31.** C1, C2 and C5 completed
+cleanly. **C3 was found non-functional and is deferred alongside C4** — the A11
+LoRA adapter does not produce schema-valid proposals under the shared proposal
+prompt (see "Sweep result" below). H1 (C3 vs C2) is therefore not evaluated in
+this run; it becomes evaluable, with no harness change, when a working C3
+adapter/prompt exists.
 
 Design: `docs/A12_EXPERIMENT_HARNESS_DESIGN.md`.
 Deviation record: `EXPERIMENT_DEVIATIONS.txt` (A12 section).
+Run artifacts: `runs/<condition>/seed_NN/`, `results/*.csv`, `results/RUN_NOTES.md`.
+
+## Sweep result (2026-08-31)
+
+Total wall-clock ≈ 64 min (matches the ~60 min projection). Baseline
+312.02 EUR / 0.6507 kg.
+
+| condition | terminal ×10 | n_eval | HV (mean ± sd) | best cost | lowest mass | funnel |
+|---|---|---|---|---|---|---|
+| **C1** base LLM | `COMPLETE_SPACE_EXHAUSTED` | 11–15 | 9.18 ± 0.00 | 187.15 | 0.6446 | parse/schema 1.0, id/applic 0.998 |
+| **C2** + RAG | `COMPLETE_SPACE_EXHAUSTED` | 13–16 | 8.93 ± 0.12 | 187.15 | 0.6446 | all 1.0 |
+| **C3** fine-tuned + RAG | `COMPLETE_SPACE_EXHAUSTED` | **0** | **0.00** | — | — | parse 1.0, **schema 0.0** |
+| **C5** NSGA-II | `COMPLETE` | 50 | **15.91 ± 2.92** | 150.99 | 0.5765 | n/a |
+
+Read `results/RUN_NOTES.md` for the interpretive context (candidate-diversity
+ceiling; C3 deferred; C1/C2/C5 stand). Observations:
+
+- **Candidate-diversity ceiling.** All 30 generative runs exhausted the atomic
+  `material_id`/`process_id` space (~11–16 distinct candidates) well below N=50.
+  Only C5 (NSGA-II) reaches the budget. C1/C2/C3 vs C5 hypervolume is a
+  search-reach comparison, not like-for-like.
+- **RAG (C2 vs C1)** removed C1's single hallucination (seed 1 invented
+  `NYLON_PA66`) — funnel 0.998 → 1.0 — but did not move the objective front
+  (identical best-cost / lowest-mass endpoints; marginally lower HV; +75 %
+  wall time). On this benchmark RAG's benefit is validity, not optimisation.
+- **C5** is the only condition with real seed variance and is well ahead on
+  hypervolume, on 50 evaluations vs ~13.
+
+### C3 defect (deferred)
+
+Every C3 proposal fails at schema. Under `build_proposal_prompt` the MLX LoRA
+adapter emits `{"change_type": "material_id"}`. This is a train/inference
+mismatch, not a harness bug:
+
+- `MLXLoRABackend` does free-form generation with no structured-output
+  constraint (`OllamaBackend` uses `format=<schema>`).
+- The A11 C3 dataset is 1,212 short `system` + terse `user` chat pairs (3 fixed
+  system prompts, ~1/3 rejection/validation tasks), not free proposal
+  generation from the A10 prompt.
+
+A time-boxed fix (training-style short system + compact user prompt) raised
+valid output from 0 to ~2/10 — the adapter still omits the required
+`proposal_id` on ~80 % of generations. Not pursued further; not escalated to
+retraining. C3 is deferred with C4, exactly as `docs/A11_C3_TRAINING_STATUS.md`
+already scopes it.
 
 It does **not** implement C4 (agentic optimisation loop) or C6 (human baseline).
 `results/hypothesis_tests.csv` emits H2 / H3 / H4 rows as `PENDING_C4`.
@@ -73,6 +123,11 @@ vocabulary adds `COMPLETE_SPACE_EXHAUSTED` to the 11.18 set.
 base model + `models/c3_adapter` load + generation. If the probe fails at run time,
 C3 is skipped as `blocked, environment`, a note is recorded, and C1/C2/C5 still run;
 a written C3 run is marked `terminal_status = INVALID_CONFIGURATION` (11.18).
+
+Note: the probe only verifies that generation *runs* — it does not check that the
+output is a schema-valid proposal. In the 2026-08-31 sweep the probe passed but the
+C3 adapter still produced no usable proposals (see "Sweep result"). A future probe
+enhancement could generate one real proposal and check it parses + passes schema.
 
 ## Calibration (real, 2026-08-31)
 

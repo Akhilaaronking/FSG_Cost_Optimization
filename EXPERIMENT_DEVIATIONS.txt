@@ -119,3 +119,28 @@ REPORTING BOUNDARY
   Wilcoxon. It does NOT produce H2 (C4 vs C5), H3 (C4 ablations) or H4 (transfer) --
   those need C4. No result from this harness establishes C4-vs-C5 hypervolume
   superiority or final H2-H4 acceptance.
+
+SWEEP RESULT (2026-08-31, ~64 min wall-clock; artifacts in runs/ and results/)
+    C1  10x COMPLETE_SPACE_EXHAUSTED | 11-15 distinct | HV 9.18 +-0.00 | 1 bad
+        proposal in 520 (seed 1 invented NYLON_PA66) | best cost 187.15 EUR
+    C2  10x COMPLETE_SPACE_EXHAUSTED | 13-16 distinct | HV 8.93 +-0.12 | funnel
+        100% valid | same objective endpoints as C1 | best cost 187.15 EUR
+    C3  10x -- NON-FUNCTIONAL. schema_rate 0.0, hr_all 1.0, n_eval_consumed 0 on
+        every seed. The MLX LoRA adapter emits {"change_type":"material_id"} under
+        the shared proposal prompt. Root cause: train/inference mismatch --
+        MLXLoRABackend does free-form generation (no format=<schema>, unlike
+        OllamaBackend), and the A11 C3 dataset is 1,212 short system+terse-user
+        chat pairs (~1/3 rejection tasks), not free proposal generation from the
+        A10 prompt. Time-boxed fix (training-style short system + compact user
+        prompt) raised valid output 0 -> ~2/10; the adapter still drops the
+        required proposal_id field ~80% of the time. NOT escalated to retraining.
+        C3 is DEFERRED alongside C4, consistent with
+        docs/A11_C3_TRAINING_STATUS.md's own scope limitation.
+    C5  10x COMPLETE | 50/50 evals | HV 15.91 +-2.92 (only condition with real
+        seed variance) | best cost 150.99 EUR | lowest mass 0.5765 kg
+
+  H1 (C3 vs C2) is NOT EVALUATED in this run -- C3 produced no valid proposals.
+  results/hypothesis_tests.csv H1 rows (NOT_SUPPORTED / NOT_COMPUTABLE) are an
+  artefact of the C3 defect, not a fine-tuning result; see results/RUN_NOTES.md.
+  C1, C2 and C5 results stand. The candidate-diversity ceiling (all generative
+  runs exhaust ~11-16 distinct candidates << N=50) held as calibration predicted.
