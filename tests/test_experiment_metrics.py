@@ -433,6 +433,7 @@ def fake_metrics(condition, seed, *, hr, cvr=None, hv, terminal="COMPLETE"):
             "hypervolume": hv,
             "normalized_hypervolume": hv / (75.6 * 0.264),
             "delta_hv": hv,
+            "categorical_subset_hypervolume": hv,
             "pareto_archive_size": 3,
             "ideal_point": [48.0, 0.13],
             "min_ideal_point_distance": 0.3,
@@ -443,6 +444,7 @@ def fake_metrics(condition, seed, *, hr, cvr=None, hv, terminal="COMPLETE"):
             "eta_hv_per_sec": hv / 100.0,
             "total_tokens": None,
         },
+        "c4": None,
         "software": {},
     }
 
@@ -539,3 +541,259 @@ def test_hypothesis_test_columns_are_stable():
     path_cols = set(HYPOTHESIS_TEST_COLUMNS)
     for row in rows:
         assert set(row).issubset(path_cols)
+
+
+# ----------------------------------------------------------------------
+# C4 metrics additions (A13 step 4)
+# ----------------------------------------------------------------------
+
+from src.experiment.metrics import _c4_block, _multiobjective  # noqa: E402
+
+
+def agentic_event(
+    *,
+    index,
+    intent="reduce_cost",
+    accepted=False,
+    retry=0,
+    fresh=False,
+    hv_after=None,
+    schema=True,
+):
+    e = {
+        "event_type": "agentic_step",
+        "validity": {
+            "parse_valid": True,
+            "schema_valid": schema,
+            "authority_valid": True,
+            "applicability_valid": True,
+        },
+        "hallucination": {"hallucinated": not schema, "categories": []},
+        "agentic": {
+            "step_index": index,
+            "selection": {"part_id": "PILOT_001", "intent": intent,
+                          "policy_reason": "x"},
+            "accepted": accepted,
+            "retry_of_selection": retry,
+            "hv_after": hv_after,
+        },
+    }
+    if fresh:
+        e["evaluation"] = {
+            "consumed_objective_budget": True,
+            "objective_eval_cache_hit": False,
+            "bom_hash": f"h{index}",
+            "constraints": {"status": "NOT_EVALUATED", "evaluated": False},
+        }
+    e["software"] = {"harness_version": "test"}
+    return e
+
+
+C4_CFG = {
+    "condition_spec": {"c4_loop": {"ablation": None}},
+}
+
+
+def test_c4_block_none_without_agentic_events():
+    assert _c4_block([proposal_event()], C4_CFG, "COMPLETE") is None
+
+
+def test_c4_block_summarises_the_loop():
+    events = [
+        agentic_event(index=0, accepted=True, retry=0, fresh=True, hv_after=10.0),
+        agentic_event(index=1, accepted=False, retry=0, fresh=True, hv_after=10.0),
+        agentic_event(index=2, accepted=False, retry=1, fresh=True, hv_after=10.0),
+        agentic_event(index=3, accepted=False, retry=2, fresh=True, hv_after=10.0),
+        agentic_event(index=4, intent="reduce_mass", accepted=True, retry=0,
+                      fresh=True, hv_after=12.0),
+    ]
+    block = _c4_block(events, C4_CFG, "COMPLETE_CONVERGED")
+    assert block["steps"] == 5
+    assert block["accepted_steps"] == 2
+    assert block["acceptance_rate"] == 2 / 5
+    assert block["selection_intent_counts"] == {"reduce_cost": 4, "reduce_mass": 1}
+    assert block["hv_trajectory"] == [10.0, 10.0, 10.0, 10.0, 12.0]
+    assert block["converged"] is True
+    assert block["stop_rule"] == "convergence"
+    # episodes: [0], [0,1,2->2], [0]  -> retries 0, 2, 0 -> mean 2/3
+    assert block["mean_retries_per_selection"] == pytest.approx(2 / 3)
+
+
+def test_c4_block_stop_rule_mapping():
+    ev = [agentic_event(index=0, fresh=True, hv_after=1.0)]
+    assert _c4_block(ev, C4_CFG, "COMPLETE")["stop_rule"] == "budget"
+    assert (
+        _c4_block(ev, C4_CFG, "ABORTED_BUDGET_UNREACHED")["stop_rule"]
+        == "attempt_cap"
+    )
+
+
+def test_c4_block_carries_ablation():
+    cfg = {"condition_spec": {"c4_loop": {"ablation": "no_rag"}}}
+    ev = [agentic_event(index=0, fresh=True, hv_after=1.0)]
+    assert _c4_block(ev, cfg, "COMPLETE")["ablation"] == "no_rag"
+
+
+def test_agentic_steps_feed_the_validity_funnel():
+    # a schema-invalid agentic step should count in n_prop and drop the
+    # schema rate, same as a "proposal" event
+    events = [
+        agentic_event(index=0, schema=True, fresh=True, hv_after=1.0),
+        agentic_event(index=1, schema=False),
+    ]
+    m = compute_metrics(
+        {"run_id": "r", "condition": "C4_base", "seed": 0,
+         "identity": {"budget": {"n_eval": 50}},
+         "condition_spec": {"c4_loop": {"ablation": None}}},
+        events,
+        terminal_status="COMPLETE",
+        wall_clock_sec=1.0,
+        pareto_archive=None,
+    )
+    assert m["validity_funnel"]["n_prop"] == 2
+    assert m["validity_funnel"]["counts"]["schema"] == 1
+    assert m["c4"]["steps"] == 2
+
+
+def test_categorical_subset_hv_matches_full_when_all_moves_categorical():
+    from src.optimization.hypervolume import hypervolume_2d
+
+    pts = [
+        {"candidate_id": "a", "objective_vector": [60.0, 1.0]},
+        {"candidate_id": "b", "objective_vector": [90.0, 0.5]},
+    ]
+    ref = [120.0, 2.4]
+    archive = {
+        "reference_point": ref,
+        "hypervolume": hypervolume_2d(pts, ref),
+        "archive_size": 2,
+        "entries": [
+            {"cost_eur": 60.0, "mass_kg": 1.0, "objective_vector": [60.0, 1.0],
+             "modifications": [{"field": "material_id"}]},
+            {"cost_eur": 90.0, "mass_kg": 0.5, "objective_vector": [90.0, 0.5],
+             "modifications": [{"field": "process_id"}]},
+        ],
+    }
+    mo = _multiobjective(archive)
+    assert mo["categorical_subset_hypervolume"] == pytest.approx(
+        mo["hypervolume"]
+    )
+
+
+def test_categorical_subset_hv_excludes_non_categorical_moves():
+    from src.optimization.hypervolume import hypervolume_2d
+
+    ref = [120.0, 2.4]
+    all_pts = [
+        {"candidate_id": "a", "objective_vector": [60.0, 1.0]},
+        {"candidate_id": "b", "objective_vector": [50.0, 0.4]},
+    ]
+    archive = {
+        "reference_point": ref,
+        "hypervolume": hypervolume_2d(all_pts, ref),
+        "archive_size": 2,
+        "entries": [
+            {"cost_eur": 60.0, "mass_kg": 1.0, "objective_vector": [60.0, 1.0],
+             "modifications": [{"field": "material_id"}]},
+            {"cost_eur": 50.0, "mass_kg": 0.4, "objective_vector": [50.0, 0.4],
+             "modifications": [{"field": "geometry"}]},  # not categorical
+        ],
+    }
+    mo = _multiobjective(archive)
+    # only the material_id point counts -> smaller HV than the full pair
+    assert mo["categorical_subset_hypervolume"] < mo["hypervolume"]
+    assert mo["categorical_subset_hypervolume"] == pytest.approx(
+        hypervolume_2d([all_pts[0]], ref)
+    )
+
+
+# -- H2 / H3 rows -----------------------------------------------
+
+
+def _c4_metrics(condition, seed, *, hv, hr=0.0, terminal="COMPLETE"):
+    m = fake_metrics(condition, seed, hr=hr, hv=hv, terminal=terminal)
+    m["multiobjective"]["categorical_subset_hypervolume"] = hv
+    return m
+
+
+def test_h2_rows_computed_for_c4_base_vs_c5():
+    mbc = {
+        "C4_base": [_c4_metrics("C4_base", s, hv=20.0 + s) for s in range(3)],
+        "C5": [_c4_metrics("C5", s, hv=15.0 + s) for s in range(3)],
+    }
+    rows = hypothesis_tests(mbc)
+    h2 = [r for r in rows if r["hypothesis"] == "H2"]
+    metrics = {r["metric"] for r in h2}
+    assert metrics == {
+        "final_hypervolume",
+        "categorical_subset_hypervolume",
+    }
+    fh = next(r for r in h2 if r["metric"] == "final_hypervolume")
+    assert fh["c_ref"] == "C5" and fh["c_test"] == "C4_base"
+    assert fh["threshold_met"] is True  # C4 HV mean >= C5
+    assert fh["absolute_reduction"] == pytest.approx(5.0)  # C4 - C5
+    assert fh["decision"] in ("SUPPORTED", "NOT_SUPPORTED")
+    assert "non-significant H2 is a valid result" in fh["notes"]
+
+
+def test_h2_pending_without_c4():
+    rows = hypothesis_tests(
+        {"C5": [_c4_metrics("C5", 0, hv=10.0)]}
+    )
+    h2 = next(r for r in rows if r["hypothesis"] == "H2")
+    assert h2["decision"] == "PENDING_C4"
+
+
+def test_h3_rows_with_ablations():
+    mbc = {
+        "C4_base": [_c4_metrics("C4_base", s, hv=20.0, hr=0.02) for s in range(3)],
+        "C4_base_no_rag": [
+            _c4_metrics("C4_base_no_rag", s, hv=18.0, hr=0.10)
+            for s in range(3)
+        ],
+        "C4_base_no_schema": [
+            _c4_metrics("C4_base_no_schema", s, hv=17.0, hr=0.20)
+            for s in range(3)
+        ],
+        "C4_base_no_validator": [
+            _c4_metrics("C4_base_no_validator", s, hv=19.0, hr=0.08)
+            for s in range(3)
+        ],
+        "C5": [_c4_metrics("C5", s, hv=15.0) for s in range(3)],
+    }
+    rows = hypothesis_tests(mbc)
+    h3 = [r for r in rows if r["hypothesis"] == "H3"]
+    below5 = next(r for r in h3 if r["metric"] == "hr_full_below_0.05")
+    ordering = next(
+        r for r in h3 if r["metric"] == "hr_full_below_min_ablation"
+    )
+    assert below5["threshold_met"] is True  # 0.02 < 0.05
+    assert ordering["threshold_met"] is True  # 0.02 < min(0.10,0.20,0.08)
+    assert ordering["decision"] == "SUPPORTED"
+    assert "HR_no_rag=0.1" in ordering["notes"]
+
+
+def test_h3_pending_ablations_when_absent():
+    mbc = {
+        "C4_base": [_c4_metrics("C4_base", s, hv=20.0, hr=0.02) for s in range(3)],
+        "C5": [_c4_metrics("C5", s, hv=15.0) for s in range(3)],
+    }
+    h3 = [r for r in hypothesis_tests(mbc) if r["hypothesis"] == "H3"]
+    ordering = next(
+        r for r in h3 if r["metric"] == "hr_full_below_min_ablation"
+    )
+    assert ordering["decision"] == "PENDING_ABLATIONS"
+
+
+def test_h2_h3_rows_keep_stable_columns():
+    mbc = {
+        "C4_base": [_c4_metrics("C4_base", s, hv=20.0, hr=0.02) for s in range(3)],
+        "C4_base_no_rag": [
+            _c4_metrics("C4_base_no_rag", s, hv=18.0, hr=0.10)
+            for s in range(3)
+        ],
+        "C5": [_c4_metrics("C5", s, hv=15.0) for s in range(3)],
+    }
+    cols = set(HYPOTHESIS_TEST_COLUMNS)
+    for row in hypothesis_tests(mbc):
+        assert set(row).issubset(cols), row

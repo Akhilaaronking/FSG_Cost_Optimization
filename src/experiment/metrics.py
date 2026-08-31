@@ -37,14 +37,33 @@ H1_ALPHA_CORRECTED = H1_ALPHA / H1_FAMILY_SIZE
 H1_HR_THRESHOLD_PCT = 30.0
 H1_CVR_THRESHOLD_PCT = 20.0
 
+H2_ALPHA = 0.05           # single primary comparison, no family correction
+H3_HR_TARGET = 0.05       # eq 10.39
+C4_CONDITION_NAMES = ("C4", "C4_base")
+C4_ABLATION_SUFFIXES = ("no_rag", "no_schema", "no_validator")
+
 
 # ----------------------------------------------------------------------
 # per-run metrics
 # ----------------------------------------------------------------------
 
 
+_PROPOSAL_EVENT_TYPES = ("proposal", "agentic_step")
+
+# fields apply_proposal can write; a candidate whose diff touches only
+# these is a purely categorical move (eq 3.53 categorical subset).
+_CATEGORICAL_FIELDS = ("material_id", "process_id")
+
+
 def _proposal_events(events: list[dict]) -> list[dict]:
-    return [e for e in events if e.get("event_type") == "proposal"]
+    # C4 "agentic_step" events carry the same validity / hallucination /
+    # evaluation shape as C1/C2/C3 "proposal" events, so the funnel,
+    # hallucination and constraint metrics apply unchanged.
+    return [
+        e
+        for e in events
+        if e.get("event_type") in _PROPOSAL_EVENT_TYPES
+    ]
 
 
 def _rate(numerator: int, denominator: int):
@@ -198,12 +217,35 @@ def _multiobjective(pareto_archive: dict | None) -> dict:
                 distances.append(math.hypot(norm[0], norm[1]))
             min_distance = min(distances)
 
+    # eq 3.53 -- HV over the archive restricted to purely categorical
+    # (material_id / process_id) candidates. While those are the only
+    # decision variables it equals `hypervolume`; it will diverge once
+    # geometry/continuous variables enter.
+    from src.optimization.hypervolume import hypervolume_2d
+
+    categorical_hv = None
+    if entries and ref:
+        cat_points = [
+            {
+                "candidate_id": e.get("candidate_id", ""),
+                "objective_vector": e.get("objective_vector")
+                or [e["cost_eur"], e["mass_kg"]],
+            }
+            for e in entries
+            if all(
+                m.get("field") in _CATEGORICAL_FIELDS
+                for m in e.get("modifications", [])
+            )
+        ]
+        categorical_hv = hypervolume_2d(cat_points, ref)
+
     return {
         "reference_point": ref,
         "hypervolume": hv,
         "normalized_hypervolume": archive.get("normalized_hypervolume"),
         # HV_baseline = 0 (empty start archive) for every condition
         "delta_hv": hv,
+        "categorical_subset_hypervolume": categorical_hv,
         "pareto_archive_size": archive.get("archive_size"),
         "ideal_point": ideal_point,
         "min_ideal_point_distance": min_distance,
@@ -252,6 +294,71 @@ def _efficiency(
         "total_tokens": (prompt_tokens + completion_tokens)
         if have_tokens
         else None,
+    }
+
+
+_C4_STOP_RULE = {
+    "COMPLETE": "budget",
+    "COMPLETE_CONVERGED": "convergence",
+    "ABORTED_BUDGET_UNREACHED": "attempt_cap",
+    "ABORTED_PROVIDER": "provider_error",
+}
+
+
+def _c4_block(
+    events: list[dict], run_config: dict, terminal_status: str
+) -> dict | None:
+    """The C4 loop summary (docs/A13 section 10), recomputed from the
+    agentic_step events. None for non-C4 runs."""
+    steps = [
+        e for e in events if e.get("event_type") == "agentic_step"
+    ]
+    if not steps:
+        return None
+
+    accepted = [
+        e for e in steps if (e.get("agentic") or {}).get("accepted")
+    ]
+    intents = Counter(
+        e["agentic"]["selection"]["intent"] for e in steps
+    )
+    hv_trajectory = [
+        e["agentic"]["hv_after"]
+        for e in steps
+        if (e.get("evaluation") or {}).get("consumed_objective_budget")
+        and e["agentic"].get("hv_after") is not None
+    ]
+
+    # a step with retry_of_selection == 0 starts a new selection episode;
+    # the episode's retry count is its last step's retry_of_selection.
+    episode_retries: list[int] = []
+    current = None
+    for e in steps:
+        r = e["agentic"].get("retry_of_selection", 0)
+        if r == 0:
+            if current is not None:
+                episode_retries.append(current)
+            current = 0
+        else:
+            current = r
+    if current is not None:
+        episode_retries.append(current)
+
+    loop = (run_config.get("condition_spec") or {}).get("c4_loop") or {}
+    return {
+        "steps": len(steps),
+        "accepted_steps": len(accepted),
+        "acceptance_rate": len(accepted) / len(steps),
+        "selection_intent_counts": dict(intents),
+        "mean_retries_per_selection": (
+            sum(episode_retries) / len(episode_retries)
+            if episode_retries
+            else 0.0
+        ),
+        "hv_trajectory": hv_trajectory,
+        "converged": terminal_status == "COMPLETE_CONVERGED",
+        "stop_rule": _C4_STOP_RULE.get(terminal_status, terminal_status),
+        "ablation": loop.get("ablation"),
     }
 
 
@@ -323,6 +430,7 @@ def compute_metrics(
             delta_hv=multiobjective["delta_hv"],
             events=events,
         ),
+        "c4": _c4_block(events, run_config, terminal_status),
         "software": (events[0]["software"] if events else None),
     }
 
@@ -754,11 +862,156 @@ def _h1_row(metric_name, ref_metrics, test_metrics, extractor, threshold):
     return row
 
 
+def _pick_c4(metrics_by_condition: dict) -> tuple[str | None, list]:
+    for name in C4_CONDITION_NAMES:
+        group = metrics_by_condition.get(name)
+        if group:
+            return name, group
+    return None, []
+
+
+def _mean_over_seeds(metrics: list, extractor):
+    vals = [
+        v for v in (extractor(m) for m in metrics) if v is not None
+    ]
+    return statistics.fmean(vals) if vals else None
+
+
+def _h2_row(metric_name, c4_name, c4, c5, extractor):
+    row = {
+        "hypothesis": "H2",
+        "comparison": f"{c4_name}_vs_C5",
+        "metric": metric_name,
+        "c_ref": "C5",
+        "c_test": c4_name,
+        "alpha_corrected": H2_ALPHA,
+        "notes": "positive absolute_reduction = C4 hypervolume advantage",
+    }
+    pairs = _paired_by_seed(c5, c4, extractor)  # (c5_val, c4_val)
+    if len(pairs) < 2:
+        row["decision"] = "NOT_COMPUTABLE"
+        row["notes"] = f"fewer than 2 shared seeds (had {len(pairs)})"
+        return row
+
+    c5_mean = statistics.fmean(p[0] for p in pairs)
+    c4_mean = statistics.fmean(p[1] for p in pairs)
+    diffs = [c4v - c5v for c5v, c4v in pairs]  # C4 - C5
+    stats = wilcoxon_paired(diffs)  # one-sided 'greater': C4 > C5
+
+    row["ref_mean"] = c5_mean
+    row["test_mean"] = c4_mean
+    row["absolute_reduction"] = c4_mean - c5_mean
+    row["W_statistic"] = stats["W_statistic"]
+    row["p_one_sided"] = stats["p_one_sided"]
+    row["effect_size_dz"] = stats["effect_size_dz"]
+    row["effect_size_rrb"] = stats["effect_size_rrb"]
+    row["n_nonzero_pairs"] = stats["n_nonzero_pairs"]
+    row["threshold_met"] = c4_mean >= c5_mean  # eq 3.52 / 3.53
+    row["significant"] = (
+        stats["p_one_sided"] is not None
+        and stats["p_one_sided"] < H2_ALPHA
+    )
+    row["decision"] = (
+        "SUPPORTED"
+        if (row["threshold_met"] and row["significant"])
+        else "NOT_SUPPORTED"
+    )
+    extra = []
+    if stats["underpowered"]:
+        extra.append(
+            f"underpowered: min achievable one-sided p "
+            f"{stats['min_achievable_p_one_sided']:.3f} > {H2_ALPHA}"
+        )
+    extra.append("a non-significant H2 is a valid result (11.13)")
+    row["notes"] = "; ".join(extra)
+    return row
+
+
+def _h3_rows(metrics_by_condition: dict, c4_name: str, full: list) -> list[dict]:
+    hr = lambda m: m["hallucination"]["hr_all_proposals"]
+    hr_full = _mean_over_seeds(full, hr)
+
+    ablations = {
+        suffix: metrics_by_condition.get(f"{c4_name}_{suffix}", [])
+        for suffix in C4_ABLATION_SUFFIXES
+    }
+    hr_abl = {
+        s: _mean_over_seeds(g, hr) for s, g in ablations.items() if g
+    }
+
+    base = {
+        "hypothesis": "H3",
+        "comparison": f"{c4_name}_vs_ablations",
+        "c_ref": c4_name,
+        "alpha_corrected": H2_ALPHA,
+    }
+    below5 = {
+        **base,
+        "metric": "hr_full_below_0.05",
+        "c_test": "-",
+        "ref_mean": hr_full,
+        "threshold_pct": H3_HR_TARGET,
+        "threshold_met": (hr_full is not None and hr_full < H3_HR_TARGET),
+        "decision": (
+            "SUPPORTED"
+            if (hr_full is not None and hr_full < H3_HR_TARGET)
+            else "NOT_SUPPORTED"
+        ),
+        "notes": f"HR_full={hr_full}",
+    }
+
+    if not hr_abl:
+        ordering = {
+            **base,
+            "metric": "hr_full_below_min_ablation",
+            "c_test": "-",
+            "ref_mean": hr_full,
+            "decision": "PENDING_ABLATIONS",
+            "notes": (
+                "no ablation runs present "
+                f"({c4_name}_no_rag / _no_schema / _no_validator)"
+            ),
+        }
+    else:
+        min_abl = min(hr_abl.values())
+        ordering = {
+            **base,
+            "metric": "hr_full_below_min_ablation",
+            "c_test": "/".join(sorted(hr_abl)),
+            "ref_mean": hr_full,
+            "test_mean": min_abl,
+            "absolute_reduction": (
+                (min_abl - hr_full)
+                if (hr_full is not None and min_abl is not None)
+                else None
+            ),
+            "threshold_met": (
+                hr_full is not None and hr_full < min_abl
+            ),
+            "decision": (
+                "SUPPORTED"
+                if (hr_full is not None and hr_full < min_abl)
+                else "NOT_SUPPORTED"
+            ),
+            "notes": (
+                "; ".join(
+                    f"HR_{s}={v}" for s, v in sorted(hr_abl.items())
+                )
+                + " (3-seed pilot; descriptive, no family correction)"
+            ),
+        }
+    return [below5, ordering]
+
+
 def hypothesis_tests(metrics_by_condition: dict[str, list[dict]]) -> list[dict]:
     """
-    Rows for results/hypothesis_tests.csv. H1 (C3 vs C2) is evaluated
-    from paired seed-level metrics; H2/H3/H4 need C4 and are emitted as
-    PENDING_C4 (docs/A12 section 8).
+    Rows for results/hypothesis_tests.csv.
+      H1  C3 vs C2   -- paired one-sided Wilcoxon (docs/A12 section 8)
+      H2  C4 vs C5   -- final HV + categorical-subset HV (eq 11.21 / 3.52 / 3.53)
+      H3  C4 ablations -- HR_full < 0.05 and < min(ablations) (eq 10.38-10.39)
+      H4  transfer   -- PENDING_C4
+    Rows for a hypothesis whose inputs are absent are emitted PENDING/
+    NOT_COMPUTABLE rather than omitted.
     """
     rows = []
     c2 = metrics_by_condition.get("C2", [])
@@ -794,18 +1047,63 @@ def hypothesis_tests(metrics_by_condition: dict[str, list[dict]]) -> list[dict]:
             }
         )
 
-    for hypothesis, comparison in (
-        ("H2", "C4_vs_C5"),
-        ("H3", "C4_vs_ablations"),
-        ("H4", "transfer_case"),
-    ):
+    # -- H2: C4 (or C4_base) vs C5 --
+    c4_name, c4 = _pick_c4(metrics_by_condition)
+    c5 = metrics_by_condition.get("C5", [])
+    if c4 and c5:
+        rows.append(
+            _h2_row(
+                "final_hypervolume",
+                c4_name,
+                c4,
+                c5,
+                lambda m: m["multiobjective"]["hypervolume"],
+            )
+        )
+        rows.append(
+            _h2_row(
+                "categorical_subset_hypervolume",
+                c4_name,
+                c4,
+                c5,
+                lambda m: m["multiobjective"].get(
+                    "categorical_subset_hypervolume"
+                ),
+            )
+        )
+    else:
         rows.append(
             {
-                "hypothesis": hypothesis,
-                "comparison": comparison,
-                "metric": "",
+                "hypothesis": "H2",
+                "comparison": "C4_vs_C5",
+                "metric": "final_hypervolume",
                 "decision": "PENDING_C4",
-                "notes": "C4 not in A12 scope",
+                "notes": "C4/C4_base and/or C5 metrics not present",
             }
         )
+
+    # -- H3: C4 full vs its ablations --
+    if c4:
+        rows.extend(_h3_rows(metrics_by_condition, c4_name, c4))
+    else:
+        rows.append(
+            {
+                "hypothesis": "H3",
+                "comparison": "C4_vs_ablations",
+                "metric": "",
+                "decision": "PENDING_C4",
+                "notes": "C4/C4_base metrics not present",
+            }
+        )
+
+    # -- H4: transfer case --
+    rows.append(
+        {
+            "hypothesis": "H4",
+            "comparison": "transfer_case",
+            "metric": "",
+            "decision": "PENDING_C4",
+            "notes": "transfer case not in scope",
+        }
+    )
     return rows
