@@ -51,7 +51,7 @@ def test_parse_parts():
 # ----------------------------------------------------------------------
 
 
-def _metrics(condition, seed, *, status, n_eval, n_prop, hr, hv=5.0):
+def _metrics(condition, seed, *, status, n_eval, n_prop, hr, hv=5.0, counts=None):
     return {
         "condition": condition,
         "seed": seed,
@@ -62,7 +62,11 @@ def _metrics(condition, seed, *, status, n_eval, n_prop, hr, hv=5.0):
             "proposal_attempts": n_prop,
             "objective_eval_cache_hits": 0,
         },
-        "validity_funnel": {"n_prop": n_prop, "counts": {}, "rates": {}},
+        "validity_funnel": {
+            "n_prop": n_prop,
+            "counts": counts or {},
+            "rates": {},
+        },
         "hallucination": {"hr_all_proposals": hr},
         "multiobjective": {"hypervolume": hv},
     }
@@ -77,6 +81,36 @@ def test_findings_flags_diversity_ceiling():
     notes = findings(metrics, [])
     assert any("CANDIDATE-DIVERSITY CEILING" in n for n in notes)
     assert any("median of 11" in n for n in notes)
+
+
+def test_findings_calls_out_dead_condition_separately():
+    # C1 explores; C3 produces nothing valid on every seed
+    metrics = []
+    for s in range(3):
+        metrics.append(
+            _metrics("C1", s, status="COMPLETE_SPACE_EXHAUSTED",
+                     n_eval=12, n_prop=40, hr=0.0)
+        )
+        metrics.append(
+            _metrics(
+                "C3", s, status="COMPLETE_SPACE_EXHAUSTED",
+                n_eval=0, n_prop=20, hr=1.0,
+                counts={"parse": 20, "schema": 0, "identifier": 0,
+                        "applicability": 0, "objective_evaluated": 0},
+            )
+        )
+    notes = findings(metrics, [])
+
+    dead = next(n for n in notes if "PRODUCED NO VALID PROPOSALS" in n)
+    assert dead.startswith("C3 ")
+    assert "'schema' stage" in dead
+    assert "hr_all = 1.0" in dead
+
+    ceiling = next(n for n in notes if "CANDIDATE-DIVERSITY CEILING" in n)
+    assert "range 12-12" in ceiling          # C3's 0 is NOT in the range
+    assert "6/6 C1 runs" not in ceiling      # C3 excluded from the count
+    assert "3/3 C1 runs" in ceiling
+    assert "C3 excluded" in ceiling
 
 
 def test_findings_flags_zero_hallucination_baseline():

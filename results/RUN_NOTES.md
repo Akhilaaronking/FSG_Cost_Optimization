@@ -17,7 +17,8 @@ results/ CSVs so it travels with the artifacts.
 
 ## Findings (data-driven)
 
-- CANDIDATE-DIVERSITY CEILING: 30/30 generative runs terminated COMPLETE_SPACE_EXHAUSTED at a median of 13 distinct candidates (range 0-16) against the N=50 budget. The atomic material_id/process_id space over this benchmark is that small. The equal-budget ceiling is shared with C5, but only C5 (NSGA-II) reaches it -- read C1/C2/C3 vs C5 hypervolume as a search-reach difference, not a like-for-like budget comparison.
+- C3 PRODUCED NO VALID PROPOSALS: all 10 seeds generated proposals (200 total) but none passed the validity funnel -- every proposal failed at the 'schema' stage (hr_all = 1.0). C3 contributes no candidates and no hypervolume; treat its rows in the CSVs as a condition-level defect, not a result.
+- CANDIDATE-DIVERSITY CEILING: 20/20 C1/C2 runs terminated COMPLETE_SPACE_EXHAUSTED at a median of 13 distinct candidates (range 11-16) against the N=50 budget (C3 excluded -- see above). The atomic material_id/process_id space over this benchmark is that small. The equal-budget ceiling is shared with C5, but only C5 (NSGA-II) reaches it -- read generative vs C5 hypervolume as a search-reach difference, not a like-for-like budget comparison.
 
 
 ---

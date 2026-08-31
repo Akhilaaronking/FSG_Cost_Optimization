@@ -380,34 +380,88 @@ def _write_run_index(out_root, runs_root, conditions, seeds):
 # ----------------------------------------------------------------------
 
 
+_FUNNEL_ORDER = (
+    "parse",
+    "schema",
+    "identifier",
+    "applicability",
+    "objective_evaluated",
+)
+
+
 def findings(all_metrics: list[dict], blocked: list[dict]) -> list[str]:
     notes: list[str] = []
     gen = [
         m for m in all_metrics if m["condition"] in GENERATIVE_CONDITIONS
     ]
+    by_condition: dict[str, list[dict]] = {}
+    for m in gen:
+        by_condition.setdefault(m["condition"], []).append(m)
 
-    # 1. candidate-diversity ceiling
-    exhausted = [
+    # 1. conditions that produced NO valid proposals at all
+    #    (every seed generated proposals but none reached evaluation)
+    dead_conditions: set[str] = set()
+    for condition, runs in sorted(by_condition.items()):
+        if runs and all(
+            r["budget"]["n_eval_consumed"] == 0
+            and r["validity_funnel"]["n_prop"] > 0
+            for r in runs
+        ):
+            dead_conditions.add(condition)
+            counts = runs[0]["validity_funnel"]["counts"]
+            fail_stage = next(
+                (s for s in _FUNNEL_ORDER if counts.get(s, 0) == 0),
+                "objective_evaluated",
+            )
+            hr = runs[0]["hallucination"]["hr_all_proposals"]
+            total_prop = sum(
+                r["validity_funnel"]["n_prop"] for r in runs
+            )
+            notes.append(
+                f"{condition} PRODUCED NO VALID PROPOSALS: all "
+                f"{len(runs)} seeds generated proposals ({total_prop} "
+                f"total) but none passed the validity funnel -- every "
+                f"proposal failed at the '{fail_stage}' stage "
+                f"(hr_all = {hr}). {condition} contributes no candidates "
+                f"and no hypervolume; treat its rows in the CSVs as a "
+                f"condition-level defect, not a result."
+            )
+
+    # 2. candidate-diversity ceiling -- only runs that actually explored
+    explored = [
         m
         for m in gen
-        if m["terminal_status"] == "COMPLETE_SPACE_EXHAUSTED"
+        if m["condition"] not in dead_conditions
+        and m["terminal_status"] == "COMPLETE_SPACE_EXHAUSTED"
+        and m["budget"]["n_eval_consumed"] > 0
     ]
-    if exhausted:
+    live_total = sum(
+        len(runs)
+        for cond, runs in by_condition.items()
+        if cond not in dead_conditions
+    )
+    if explored:
         consumed = sorted(
-            m["budget"]["n_eval_consumed"] for m in exhausted
+            m["budget"]["n_eval_consumed"] for m in explored
         )
-        target = exhausted[0]["budget"]["n_eval_target"]
+        target = explored[0]["budget"]["n_eval_target"]
         med = consumed[len(consumed) // 2]
+        conds = "/".join(sorted({m["condition"] for m in explored}))
+        excl = (
+            f" ({'/'.join(sorted(dead_conditions))} excluded -- see above)"
+            if dead_conditions
+            else ""
+        )
         notes.append(
             "CANDIDATE-DIVERSITY CEILING: "
-            f"{len(exhausted)}/{len(gen)} generative runs terminated "
+            f"{len(explored)}/{live_total} {conds} runs terminated "
             f"COMPLETE_SPACE_EXHAUSTED at a median of {med} distinct "
             f"candidates (range {consumed[0]}-{consumed[-1]}) against the "
-            f"N={target} budget. The atomic material_id/process_id space "
-            "over this benchmark is that small. The equal-budget ceiling "
-            "is shared with C5, but only C5 (NSGA-II) reaches it -- read "
-            "C1/C2/C3 vs C5 hypervolume as a search-reach difference, not "
-            "a like-for-like budget comparison."
+            f"N={target} budget{excl}. The atomic material_id/process_id "
+            "space over this benchmark is that small. The equal-budget "
+            "ceiling is shared with C5, but only C5 (NSGA-II) reaches it "
+            "-- read generative vs C5 hypervolume as a search-reach "
+            "difference, not a like-for-like budget comparison."
         )
 
     # 2. zero-hallucination baseline
