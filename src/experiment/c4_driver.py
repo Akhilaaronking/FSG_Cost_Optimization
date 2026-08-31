@@ -147,6 +147,11 @@ class C4Driver:
         }
 
         hv_trajectory: list[float] = []
+        # archive membership snapshot taken at each fresh evaluation, so
+        # _converged can detect a stalled search even while HV is pinned
+        # at 0 (every archive member outside the 1.2x reference point).
+        archive_id_history: list[frozenset] = []
+        convergence_reason = None
         intent_counts: dict[str, int] = {}
         accepted_steps = 0
         retries_seen: list[int] = []
@@ -173,11 +178,14 @@ class C4Driver:
                 )
                 break
 
-            if self._converged(hv_trajectory):
+            converged, convergence_reason = self._converged(
+                hv_trajectory, archive_id_history
+            )
+            if converged:
                 terminal = "COMPLETE_CONVERGED"
                 detail = (
-                    f"delta_HV over last {self.look_back_L} evaluations "
-                    f"< {self.epsilon_hv}; "
+                    f"{convergence_reason} over last {self.look_back_L} "
+                    f"evaluations (epsilon_hv={self.epsilon_hv}); "
                     f"{self.ledger.objective_evaluations}/{self.n_eval} "
                     f"evaluations consumed"
                 )
@@ -315,6 +323,12 @@ class C4Driver:
                         hv_trajectory.append(
                             hypervolume_2d(archive.entries(), ref_point)
                         )
+                        archive_id_history.append(
+                            frozenset(
+                                e["candidate_id"]
+                                for e in archive.entries()
+                            )
+                        )
                 elif application.is_noop:
                     reason = "no-op (no change vs the working BOM)"
                 else:
@@ -431,6 +445,7 @@ class C4Driver:
                     ),
                     "hv_trajectory": hv_trajectory,
                     "converged": terminal == "COMPLETE_CONVERGED",
+                    "convergence_reason": convergence_reason,
                     "stop_rule": _stop_rule(terminal),
                     "ablation": self.ablation,
                 }
@@ -444,13 +459,36 @@ class C4Driver:
             return None
         return hv_trajectory[-1] - hv_trajectory[-1 - self.look_back_L]
 
-    def _converged(self, hv_trajectory: list) -> bool:
-        if len(hv_trajectory) <= self.look_back_L:
-            return False
-        if hv_trajectory[-1] <= 0.0:
-            return False  # "found nothing" is not convergence
-        delta = hv_trajectory[-1] - hv_trajectory[-1 - self.look_back_L]
-        return delta < self.epsilon_hv
+    def _converged(
+        self, hv_trajectory: list, archive_id_history: list
+    ) -> tuple[bool, str | None]:
+        """Convergence check (eq 4.2).
+
+        Previously gated on ``hv > 0.0``, which meant a working state with
+        HV pinned at 0 (every accepted candidate outside the 1.2x
+        baseline reference point) could never converge -- the loop ground
+        on until the proposal-attempt cap even though the search had long
+        since stalled. Now:
+
+          A. HV has plateaued over the last L evaluations, regardless of
+             its absolute level (``delta_HV_recent < epsilon_hv``); or
+          B. the archive membership has not changed across the last L
+             evaluations (covers the degenerate case where the HV number
+             itself stays 0 but the search is genuinely stuck).
+        """
+        L = self.look_back_L
+        if len(hv_trajectory) <= L:
+            return False, None
+
+        window = hv_trajectory[-L:]
+        if max(window) - min(window) < self.epsilon_hv:
+            return True, "hv_plateau"
+
+        recent_ids = archive_id_history[-L:]
+        if len(recent_ids) == L and len(set(recent_ids)) == 1:
+            return True, "archive_unchanged"
+
+        return False, None
 
 
 def _selector_view(prev: dict) -> dict | None:

@@ -590,7 +590,12 @@ def agentic_event(
 
 
 C4_CFG = {
-    "condition_spec": {"c4_loop": {"ablation": None}},
+    "condition_spec": {
+        "c4_loop": {
+            "ablation": None,
+            "convergence": {"look_back_L": 3, "epsilon_hv": 0.1},
+        }
+    },
 }
 
 
@@ -617,6 +622,41 @@ def test_c4_block_summarises_the_loop():
     assert block["stop_rule"] == "convergence"
     # episodes: [0], [0,1,2->2], [0]  -> retries 0, 2, 0 -> mean 2/3
     assert block["mean_retries_per_selection"] == pytest.approx(2 / 3)
+
+
+def test_c4_block_convergence_reason_derived_from_trajectory():
+    # flat HV over the last L=3 evals -> hv_plateau
+    plateau = [
+        agentic_event(index=i, fresh=True, hv_after=8.0) for i in range(5)
+    ]
+    assert (
+        _c4_block(plateau, C4_CFG, "COMPLETE_CONVERGED")["convergence_reason"]
+        == "hv_plateau"
+    )
+    # HV pinned at 0 for the last L evals is still a plateau now
+    zeros = [
+        agentic_event(index=i, fresh=True, hv_after=0.0) for i in range(5)
+    ]
+    assert (
+        _c4_block(zeros, C4_CFG, "COMPLETE_CONVERGED")["convergence_reason"]
+        == "hv_plateau"
+    )
+    # HV still swinging above epsilon -> the other stop reason
+    swinging = [
+        agentic_event(index=0, fresh=True, hv_after=0.0),
+        agentic_event(index=1, fresh=True, hv_after=5.0),
+        agentic_event(index=2, fresh=True, hv_after=0.0),
+        agentic_event(index=3, fresh=True, hv_after=5.0),
+        agentic_event(index=4, fresh=True, hv_after=0.0),
+    ]
+    assert (
+        _c4_block(swinging, C4_CFG, "COMPLETE_CONVERGED")["convergence_reason"]
+        == "archive_unchanged"
+    )
+    # non-converged terminal -> no reason
+    assert (
+        _c4_block(plateau, C4_CFG, "COMPLETE")["convergence_reason"] is None
+    )
 
 
 def test_c4_block_stop_rule_mapping():

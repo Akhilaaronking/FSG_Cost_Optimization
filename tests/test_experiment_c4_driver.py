@@ -205,6 +205,33 @@ def test_convergence_early_stop(tmp_path):
     assert outcome.ledger["n_eval_consumed"] < 20
     assert outcome.extra["c4"]["converged"] is True
     assert outcome.extra["c4"]["stop_rule"] == "convergence"
+    assert outcome.extra["c4"]["convergence_reason"] == "hv_plateau"
+
+
+def test_converged_no_longer_gated_on_positive_hv(tmp_path):
+    # regression: a working state with HV pinned at 0 for L evaluations
+    # used to be unable to converge (old `hv[-1] <= 0.0` guard), so the
+    # loop ground on to the proposal-attempt cap. It must now converge.
+    d = driver(GOOD_TRIO, c4_run_config(L=3, eps=0.1))
+    ids = [frozenset({"a"})]
+    assert d._converged([0.0, 0.0, 0.0], ids * 3) == (False, None)  # len <= L
+    assert d._converged([0.0, 0.0, 0.0, 0.0], ids * 4) == (True, "hv_plateau")
+    assert d._converged([5.0, 5.0, 5.0, 5.0], ids * 4) == (True, "hv_plateau")
+
+
+def test_converged_archive_unchanged_branch(tmp_path):
+    d = driver(GOOD_TRIO, c4_run_config(L=3, eps=0.1))
+    # HV number swings above epsilon (no plateau) but the archive
+    # membership has not moved for L evaluations -> stalled search.
+    same = [frozenset({"a", "b"})] * 4
+    assert d._converged([0.0, 10.0, 0.0, 10.0], same) == (
+        True,
+        "archive_unchanged",
+    )
+    # genuinely still exploring: HV climbing, archive growing each eval
+    growing = [frozenset({"a"}), frozenset({"a", "b"}), frozenset({"a", "b", "c"}),
+               frozenset({"a", "b", "c", "d"})]
+    assert d._converged([1.0, 3.0, 6.0, 10.0], growing) == (False, None)
 
 
 def test_retry_cap_then_selector_advances(tmp_path):
@@ -296,6 +323,7 @@ def test_runoutcome_c4_extra_shape(tmp_path):
         "mean_retries_per_selection",
         "hv_trajectory",
         "converged",
+        "convergence_reason",
         "stop_rule",
         "ablation",
     }

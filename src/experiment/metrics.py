@@ -345,6 +345,21 @@ def _c4_block(
         episode_retries.append(current)
 
     loop = (run_config.get("condition_spec") or {}).get("c4_loop") or {}
+    conv = loop.get("convergence") or {}
+
+    # the driver breaks on convergence for exactly one of two reasons and
+    # checks hv_plateau first (src/experiment/c4_driver.py _converged);
+    # reproduce that decision from the recomputed HV trajectory.
+    convergence_reason = None
+    if terminal_status == "COMPLETE_CONVERGED":
+        L = int(conv.get("look_back_L") or 0)
+        eps = float(conv.get("epsilon_hv") or 0.0)
+        window = hv_trajectory[-L:] if L else []
+        if len(window) == L and L and (max(window) - min(window)) < eps:
+            convergence_reason = "hv_plateau"
+        else:
+            convergence_reason = "archive_unchanged"
+
     return {
         "steps": len(steps),
         "accepted_steps": len(accepted),
@@ -357,6 +372,7 @@ def _c4_block(
         ),
         "hv_trajectory": hv_trajectory,
         "converged": terminal_status == "COMPLETE_CONVERGED",
+        "convergence_reason": convergence_reason,
         "stop_rule": _C4_STOP_RULE.get(terminal_status, terminal_status),
         "ablation": loop.get("ablation"),
     }
