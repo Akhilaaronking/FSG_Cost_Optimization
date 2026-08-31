@@ -184,18 +184,9 @@ One file per `runs/<condition>/seed_NN/`. Self-contained: `run_id` is recomputab
     //       "reference_point_rule": "1.2x baseline (eq 11.10)" }
   },
 
-  "deviations": [                      // §9 — copied verbatim into every run_config.json
-    {
-      "id": "SEED_COUNT",
-      "thesis_ref": "11.5",
-      "thesis_value": "10 independent seeds, shared across paired conditions",
-      "actual_value": "3 seeds {0,1,2}, shared across C1/C2/C3/C5",
-      "reason": "time constraint; C3 MLX LoRA inference cost on M4/16GB",
-      "consequence": "paired Wilcoxon underpowered — min two-sided p = 0.25 at n=3 (see §8)",
-      "pattern": "EXPERIMENT_DEVIATIONS.txt / ENV_DEVIATIONS.txt",
-      "approved_by": null
-    }
-  ]
+  "deviations": []                     // §9 — full 10-seed protocol, no standing deviation.
+                                       // The runner may inject a per-run note here, e.g.
+                                       // {"id":"C3_ENV","detail":"MLX probe failed on host"}.
 }
 ```
 
@@ -553,50 +544,49 @@ No existing test, generator, prompt, evaluator, or optimiser file is modified.
 
 H2 (C4 vs C5), H3 (C4 ablations), H4 (transfer). Rows are pre-created in `hypothesis_tests.csv` with `decision = PENDING_C4`.
 
-### The seed-reduction consequence — stated plainly
+### Power — resolved by running the full protocol
 
-With **n = 3** nonzero paired differences, the Wilcoxon signed-rank null distribution has 2³ = 8 equally likely sign patterns. The most extreme outcome (all differences same sign) gives:
-- two-sided exact p = 2/8 = **0.25**
-- one-sided exact p = 1/8 = **0.125**
+The run uses the thesis-specified **10 seeds** (§9). At n = 10 nonzero paired differences the one-sided exact Wilcoxon can reach p ≈ 1/2¹⁰ ≈ 0.001 < α* = 0.025, so H1 is adequately powered *as a test*. `hypothesis_tests.csv` still carries a `min_achievable_p_one_sided` = 1/2ⁿ and an `underpowered` flag per row, computed from the actual nonzero-pair count after zeros are dropped — because the **effective** n can still fall below 10 (see next paragraph).
 
-Both exceed α = .05 and the Bonferroni α* = .025. **It is therefore impossible for this pass to produce a statistically significant H1 result**, regardless of how large the effect is. This pass yields:
-- the **effect direction and magnitude** (`R_H`, `R_V`, `d_z`, `r_rb`),
-- the **absolute engineering deltas** (percentage-point HR/CVR change, EUR, grams, HV),
-- the Wilcoxon statistic and exact p **reported but pre-declared underpowered**.
-
-Full inferential H1 requires re-running C2 and C3 at the thesis's 10 seeds. This is recorded in `run_config.deviations[]`, in `EXPERIMENT_DEVIATIONS.txt`, and must be carried into any Chapter 12 wording ("descriptive evidence consistent with H1; not a significance test").
+**A different limitation, found in calibration (§9), does bind here:** the base model is already hallucination-free on this benchmark and seed-to-seed variance in the generative conditions is near zero, so many paired differences are exactly 0 and get dropped. If HR_C2 = HR_C3 = 0 on every seed, `R_H` is undefined and the harness reports the absolute difference (≈ 0) with `decision = NOT_COMPUTABLE` (thesis 11.12). H1's measurable signal on this benchmark is therefore the **descriptive** C1→C2→C3 funnel / HV / candidate-selection trend, not a hallucination-reduction significance result — and the run prints this as a finding (§7) so it travels with the CSVs.
 
 ---
 
-## 9. Seed-count reduction proposal (Requirement 5)
+## 9. Seed count — full thesis protocol (no reduction)
 
-Same pattern as `ENV_DEVIATIONS.txt` / `EXPERIMENT_DEVIATIONS.txt`: **reduced, documented, not silently substituted.**
+An earlier draft of this section proposed a 3-seed reduction on time grounds. **Calibration retired that.** A real N=50 C1 run against Ollama `llama3.1:8b` (all 10 parts, seed 0) measured:
 
-### Proposal
+| | |
+|---|---|
+| terminal_status | `COMPLETE_SPACE_EXHAUSTED` |
+| wall-clock | **103 s** |
+| proposal attempts (K) | 37 |
+| distinct candidates (`n_eval_consumed`) | **11** |
+| per-attempt wall | 2.79 s |
+| funnel | parse/schema/identifier/applicability/eval all 1.00 |
+| hallucination rate | **0.0** |
 
-| Parameter | Thesis (11.5 / 11.6) | Locked for A12 (§10) | Rationale |
-|---|---|---|---|
-| Seeds | 10 independent, shared across paired conditions | **3 seeds: {0, 1, 2}**, shared across C1/C2/C3/C5 | Pairing preserved (11.5). C3 = MLX LoRA 8B-4bit inference on M4/16 GB; a 3-seed × 4-condition sweep is a working-session cost, a 10-seed sweep is a multi-day cost. |
-| Budget `N` | Not fixed by the thesis (the C5 pilot's own default is 100) | **N = 50** deterministic objective evaluations, all four conditions; **C5 re-run at 50** | One budget number for all four. C5 re-run costs ~0.1 s/seed, so aligning C5 down is free; the existing `results/c5_pilot/` (N=100, 10 seeds) is superseded for A12 purposes. |
+Projected full sweep (10 seeds × C1/C2/C3 + C5, serial, non-interleaved): **≈ 60 min**. C3 (MLX LoRA) is ~3 s/proposal, not the multi-day bottleneck the reduction assumed — schema-constrained decoding stops the model early, far short of `max_tokens`.
 
-### How it is recorded (not silent)
+**Decision: run the thesis-specified 10 seeds {0…9}, shared across C1/C2/C3/C5. No reduction, no `SEED_COUNT` deviation.** `build_run_config` defaults `deviations` to `[]`; `DEFAULT_SEEDS = range(10)`.
 
-1. `run_config.json → deviations[]` — verbatim block, in **every** run's config (schema shown in §3).
-2. `EXPERIMENT_DEVIATIONS.txt` — appended entry in the existing CONTEXT / DECISION / WHAT WAS RUN / RESULT / REPORTING BOUNDARY format.
-3. `metrics.json → terminal_status` and `condition_summary.csv → n_seeds` — the reduced count is visible in every rollup.
-4. §8 consequence text travels with the H1 result wherever it is quoted.
+### Calibration findings carried into the run (not deviations — observations)
 
-### Full deviations table for this harness
+1. **Candidate-diversity ceiling.** The atomic `material_id`/`process_id` space over this 10-part benchmark is ~11 wide. Every C1/C2/C3 run will terminate `COMPLETE_SPACE_EXHAUSTED` at ~11 distinct candidates; only C5 reaches N=50. The equal-budget *ceiling* is shared; the *reach* is not. Cross-condition HV (C1/C2/C3 vs C5) is a search-reach comparison, not like-for-like.
+2. **Zero-hallucination baseline.** C1 produced 0 hallucinations in 37 attempts. RAG (C2) and fine-tuning (C3) cannot reduce a zero rate, so H1's HR axis will report absolute difference ≈ 0 / `NOT_COMPUTABLE` (11.12). The measurable C1→C2→C3 signal is candidate selection + the HV / validity-funnel trend (§8).
+
+`scripts/run_experiment.py` emits both, data-driven, into stdout **and** `results/RUN_NOTES.md` at the end of every sweep, so the context travels with the CSVs.
+
+### Deviations table for this harness
 
 | Thesis spec | A12 harness | Reason | Recorded in |
 |---|---|---|---|
-| 11.5 — 10 seeds | 3 seeds {0,1,2} | time; C3 MLX inference cost | `run_config.deviations[]`, `EXPERIMENT_DEVIATIONS.txt` |
-| 11.5 — inferential Wilcoxon at α=.05 | descriptive + effect size; test reported, pre-declared underpowered (min p = 0.25) | consequence of the seed cut | §8, `EXPERIMENT_DEVIATIONS.txt` |
+| 11.5 — 10 seeds | **10 seeds {0…9}** — no change | calibration: full sweep ~60 min | — (no deviation) |
 | 11.19 — `manifest.json` | `run_config.json` (identical field set) | Requirement 1; 11.19 permits renaming | §2 |
 | 11.19 — `runs/<condition>/<seed>/` | `runs/<condition>/seed_NN/` | zero-pad for sort order | §2 |
-| 11.18 — fixed status vocabulary | + `COMPLETE_SPACE_EXHAUSTED` | atomic generative proposals can exhaust a small distinct space | §6 |
-| `N` unfixed in thesis | `N = 50`, uniform across conditions; C5 re-run to match; `results/c5_pilot/` (N=100 ×10) superseded for A12 | one budget number for all four | `run_config.budget`, `EXPERIMENT_DEVIATIONS.txt` |
-| `run_c1_c2_pilot.py` — 3 hard-coded parts, seeds {0,1} | all 10 pilot parts eligible, seeds {0,1,2} | broader funnel statistics; that script was a pipeline check | §10 Q4 |
+| 11.18 — fixed status vocabulary | + `COMPLETE_SPACE_EXHAUSTED` | atomic generative proposals exhaust a small distinct space | §6 |
+| `N` unfixed in thesis | `N = 50`, uniform across conditions; C5 re-run to match; `results/c5_pilot/` (N=100 ×10) superseded for A12 | one budget number for all four | `run_config.budget` |
+| `run_c1_c2_pilot.py` — 3 hard-coded parts, seeds {0,1} | all 10 pilot parts, seeds {0…9} | broader funnel statistics; that script was a pipeline check | §10 Q4 |
 | C1–C6 full matrix | C1, C2, C3, C5 only | staged delivery; C4/C6 next pass | this doc, §1 |
 
 ---
@@ -605,6 +595,7 @@ Same pattern as `ENV_DEVIATIONS.txt` / `EXPERIMENT_DEVIATIONS.txt`: **reduced, d
 
 | # | Question | Decision |
 |---|---|---|
+| 0 | Seed count | **10 seeds {0…9}, the full thesis protocol (11.5). No reduction** — calibration put the full sweep at ~60 min (§9). Reverses the earlier 3-seed draft. |
 | 1 | Budget `N` | **N = 50 for all four conditions; C5 re-run at 50.** Existing `results/c5_pilot/` (N=100 ×10 seeds) is superseded for A12. |
 | 2 | C3 host readiness | **Add an `mlx_lm` import + `models/c3_adapter` load probe** at C3 startup. On failure: C3 reported `blocked, environment` (like the old A10 note), C1/C2/C5 still run. |
 | 3 | Atomic vs cumulative proposals | **Atomic.** Each accepted proposal applied to the frozen baseline `x0` independently, no stacking. C1–C3 stay proposal-quality conditions (11.3); cumulative search is C4. |
@@ -622,10 +613,10 @@ Same pattern as `ENV_DEVIATIONS.txt` / `EXPERIMENT_DEVIATIONS.txt`: **reduced, d
 4. `src/experiment/events.py` — `EventLog`, `event_from(rec)`.
 5. `src/experiment/probe.py` — `mlx_lm` import + `models/c3_adapter` load check; returns a pass/blocked verdict the runner acts on for C3.
 6. `src/experiment/drivers.py` — `GenerativeDriver` (C1/C2/C3, all 10 parts, atomic), `Nsga2Driver` (C5).
-7. `src/experiment/metrics.py` — `compute_metrics`, `seed_summary` / `condition_summary` rollups.
-8. `scripts/run_experiment.py` — CLI.
+7. `src/experiment/metrics.py` — `compute_metrics`, `seed_summary` / `condition_summary` rollups. ✅
+8. `scripts/run_experiment.py` — CLI, `n_seeds = 10` default, fixed C1→C2→C3→C5 order, data-driven findings + `results/RUN_NOTES.md`. ✅
 9. `scripts/run_c5_real_pilot.py` — reduce to a shim over `Nsga2Driver` (keep the CLI flags, drop the duplicated math).
 10. Tests: budget invariant (`Σ consumed_objective_budget == n_eval`), funnel counting, `run_id` stability, `COMPLETE_SPACE_EXHAUSTED` path, C5 parity vs the pre-shim pilot on a fixed seed.
-11. `EXPERIMENT_DEVIATIONS.txt` append (seed count, N=50, C5 supersession, underpowered-H1 note) + a short `docs/A12_EXPERIMENT_HARNESS_STATUS.md` with the real runs.
+11. `EXPERIMENT_DEVIATIONS.txt` append (N=50, C5 supersession — **no** seed-count deviation) + a short `docs/A12_EXPERIMENT_HARNESS_STATUS.md` with the real runs.
 
-*Scope and schema are signed off (§10). Build proceeds on your go.*
+Steps 1–7 ✅ and 8 ✅ built and committed. Remaining: 9 (C5 shim), 10 (cross-cutting tests), 11 (deviations + status doc), then the real sweep.

@@ -43,7 +43,10 @@ PROMPT_VERSION = "A10.1"
 CONDITIONS = ("C1", "C2", "C3", "C5")
 GENERATIVE_CONDITIONS = ("C1", "C2", "C3")
 
-DEFAULT_SEEDS = (0, 1, 2)
+# Full thesis protocol (11.5): ten independent seeds, the same set
+# across paired conditions. Calibration (docs/A12 section 9) put the
+# whole C1/C2/C3/C5 sweep at ~60 min, so no reduced-seed compromise.
+DEFAULT_SEEDS = tuple(range(10))
 DEFAULT_N_EVAL = 50
 PROPOSAL_ATTEMPT_CAP = 1500
 
@@ -98,25 +101,11 @@ RETRIEVAL_EMBEDDER = "sentence-transformers/all-MiniLM-L6-v2"
 RETRIEVAL_VECTOR_BACKEND = "numpy_cosine"
 RETRIEVAL_TOP_K = 5
 
-# --- the standing seed-count deviation (docs/A12 section 9) ---------
-
-SEED_COUNT_DEVIATION = {
-    "id": "SEED_COUNT",
-    "thesis_ref": "11.5",
-    "thesis_value": (
-        "10 independent seeds, shared across paired conditions"
-    ),
-    "actual_value": "3 seeds {0,1,2}, shared across C1/C2/C3/C5",
-    "reason": (
-        "time constraint; C3 MLX LoRA inference cost on M4 / 16 GB"
-    ),
-    "consequence": (
-        "paired Wilcoxon underpowered -- minimum two-sided p = 0.25 "
-        "at n = 3 (docs/A12 section 8)"
-    ),
-    "pattern": "EXPERIMENT_DEVIATIONS.txt / ENV_DEVIATIONS.txt",
-    "approved_by": "user (2026-08-31)",
-}
+# The run is the full thesis protocol: 10 seeds, no reduction (see
+# DEFAULT_SEEDS). There is therefore no standing seed-count deviation;
+# build_run_config defaults `deviations` to []. The runner may still pass
+# per-run deviations (e.g. a C3 INVALID_CONFIGURATION note if the MLX
+# probe fails on the host).
 
 
 # --- hashing helpers -----------------------------------------------
@@ -469,11 +458,7 @@ def build_run_config(
             target_parts=target_parts,
             nsga2_spec=nsga2_spec,
         ),
-        "deviations": (
-            list(deviations)
-            if deviations is not None
-            else [dict(SEED_COUNT_DEVIATION)]
-        ),
+        "deviations": list(deviations) if deviations is not None else [],
     }
 
 

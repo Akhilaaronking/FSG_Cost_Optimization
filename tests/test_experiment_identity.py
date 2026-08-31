@@ -115,9 +115,23 @@ def test_generative_conditions_use_the_generative_driver():
         assert spec["generator_fn"].endswith(condition.lower())
 
 
-def test_default_deviation_records_the_seed_count_cut():
-    deviations = run_config("C1")["deviations"]
-    assert any(entry["id"] == "SEED_COUNT" for entry in deviations)
+def test_full_protocol_has_no_default_deviations():
+    # Running the full 10-seed thesis protocol -> no standing deviation.
+    assert run_config("C1")["deviations"] == []
+
+
+def test_explicit_deviations_are_carried_through():
+    note = {"id": "C3_ENV", "detail": "MLX probe failed"}
+    cfg = build_run_config(
+        "C3", seed=0, n_eval=50, target_parts=TARGET_PARTS, deviations=[note]
+    )
+    assert cfg["deviations"] == [note]
+
+
+def test_default_seeds_is_ten():
+    from src.experiment.identity import DEFAULT_SEEDS
+
+    assert DEFAULT_SEEDS == tuple(range(10))
 
 
 def test_seed_dir_name_is_zero_padded():
