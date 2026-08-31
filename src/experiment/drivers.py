@@ -44,6 +44,14 @@ from src.llm.conditions import generate_c1, generate_c2, generate_c3
 REFERENCE_POINT_FACTOR = 1.2  # eq 11.10
 MODIFICATION_FIELDS = ("material_id", "process_id")
 
+# Per-proposal decode seed = run_seed * ATTEMPT_SEED_STRIDE + attempt_index
+# (attempt_index is 1-based, == ledger.proposal_attempts at call time).
+# The stride is well above proposal_attempt_cap (1500) so the seed
+# sub-sequences for different run seeds never overlap: same run seed ->
+# identical attempt-seed sequence (reproducible, and paired across
+# C1/C2/C3 per 11.5); different run seeds -> disjoint sequences.
+ATTEMPT_SEED_STRIDE = 10_000
+
 _GENERATORS = {
     "C1": generate_c1,
     "C2": generate_c2,
@@ -339,21 +347,25 @@ class GenerativeDriver:
             else 2 * max(1, len(self.target_part_ids))
         )
 
-    def _generate(self, target_part: dict) -> dict:
+    def _attempt_seed(self, attempt_index: int) -> int:
+        """Deterministic per-proposal decode seed (see ATTEMPT_SEED_STRIDE)."""
+        return self.seed * ATTEMPT_SEED_STRIDE + attempt_index
+
+    def _generate(self, target_part: dict, *, decode_seed: int) -> dict:
         fn = _GENERATORS[self.condition]
         if self.condition == "C1":
             return fn(
                 self.generator,
                 bom=self.baseline_bom,
                 target_part=target_part,
-                seed=self.seed,
+                seed=decode_seed,
             )
         return fn(
             self.generator,
             bom=self.baseline_bom,
             target_part=target_part,
             retriever=self.retriever,
-            seed=self.seed,
+            seed=decode_seed,
         )
 
     def _part_cycle(self):
@@ -387,10 +399,13 @@ class GenerativeDriver:
                 break
 
             part_id = next(parts)
-            self.ledger.record_proposal_attempt()
+            attempt_index = self.ledger.record_proposal_attempt()
 
             try:
-                rec = self._generate(self._parts_by_id[part_id])
+                rec = self._generate(
+                    self._parts_by_id[part_id],
+                    decode_seed=self._attempt_seed(attempt_index),
+                )
             except Exception as exc:
                 terminal = "ABORTED_PROVIDER"
                 detail = f"{type(exc).__name__}: {exc}"

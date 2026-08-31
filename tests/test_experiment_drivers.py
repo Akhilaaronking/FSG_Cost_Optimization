@@ -62,6 +62,19 @@ class CyclingBackend:
         return response
 
 
+class SeedRecordingBackend:
+    backend_name = "stub"
+    model_name = "seed-recording"
+
+    def __init__(self, response):
+        self.response = response
+        self.seeds = []
+
+    def generate(self, prompt, *, seed=None, temperature=0.2, max_tokens=512):
+        self.seeds.append(seed)
+        return self.response
+
+
 def material_proposal(part_id, new_value, old_value="AL_6061_T6"):
     return json.dumps(
         {
@@ -399,6 +412,59 @@ def test_seed_rotates_target_part_order(tmp_path):
 
 def _first_n(iterator, n):
     return [next(iterator) for _ in range(n)]
+
+
+# -- GenerativeDriver: per-attempt decode seed ----------
+
+
+def test_attempt_seed_formula():
+    from src.experiment.drivers import ATTEMPT_SEED_STRIDE
+
+    driver = make_generative_driver([material_proposal("PILOT_001", "AL_7075_T6")])
+    driver.seed = 3
+    assert ATTEMPT_SEED_STRIDE == 10_000
+    assert driver._attempt_seed(1) == 30_001
+    assert driver._attempt_seed(7) == 30_007
+
+
+def _run_seed_recording(run_seed, n_eval, tmp_path, tag):
+    backend = SeedRecordingBackend(
+        material_proposal("PILOT_001", "AL_7075_T6")
+    )
+    cfg = run_config("C1", seed=run_seed, n_eval=n_eval)
+    driver = GenerativeDriver(
+        cfg,
+        generator=ProposalGenerator(backend, registry=DataRegistry()),
+        baseline_bom=two_part_baseline(),
+        evaluator=fake_evaluator(),
+    )
+    log = EventLog(
+        tmp_path / f"{tag}.jsonl", run_id="r", condition="C1", seed=run_seed
+    )
+    driver.run(log)
+    log.close()
+    return backend.seeds
+
+
+def test_decode_seed_varies_per_attempt_and_is_monotonic(tmp_path):
+    seeds = _run_seed_recording(2, 6, tmp_path, "s2")
+    # run seed 2, stride 10_000, 1-based attempt index
+    assert seeds[:3] == [20_001, 20_002, 20_003]
+    assert seeds == sorted(seeds)
+    assert len(set(seeds)) == len(seeds)  # no repeats within a run
+
+
+def test_attempt_seed_sequence_is_reproducible_from_run_seed(tmp_path):
+    first = _run_seed_recording(1, 5, tmp_path, "run_a")
+    second = _run_seed_recording(1, 5, tmp_path, "run_b")
+    assert first == second
+
+
+def test_different_run_seeds_get_disjoint_attempt_seed_ranges(tmp_path):
+    s0 = set(_run_seed_recording(0, 8, tmp_path, "s0"))
+    s1 = set(_run_seed_recording(1, 8, tmp_path, "s1"))
+    assert s0.isdisjoint(s1)
+    assert max(s0) < min(s1)
 
 
 # -- Nsga2Driver: real integration ----------------------

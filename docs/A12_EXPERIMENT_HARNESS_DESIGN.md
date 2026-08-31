@@ -439,10 +439,13 @@ This makes the budget **identical in kind** across C1/C2/C3/C5: *N distinct dete
 ### Generative driver loop (C1 / C2 / C3)
 
 ```
+attempt = 0
 while ledger.objective_evaluations < N:
     if ledger.proposal_attempts >= attempt_cap:          -> terminal = ABORTED_BUDGET_UNREACHED ; break
-    part = next_target_part(seed)                        # deterministic round-robin seeded by `seed`
-    rec  = generate_cX(generator, bom=x0, target_part=part, seed=seed, retriever=…)   # EXISTING fn, unchanged
+    attempt += 1
+    part = next_target_part(seed)                        # deterministic round-robin, start = seed % |parts|
+    decode_seed = seed * 10_000 + attempt                # per-attempt, disjoint per run seed
+    rec  = generate_cX(generator, bom=x0, target_part=part, seed=decode_seed, retriever=…)   # EXISTING fn, unchanged
     ledger.proposal_attempts += 1
     ev = event_from(rec)                                 # parse/schema/authority/hallucination already in rec
     if rec.parse_valid and rec.schema_valid and rec.authority_valid:
@@ -457,7 +460,7 @@ terminal = terminal or COMPLETE
 
 Key properties:
 - **Atomic proposals vs the frozen baseline** (`x0`). Each accepted proposal is applied to `x0` independently — not stacked. This keeps C1/C2/C3 as *proposal-quality* conditions (their thesis role: 11.3 *"C1 to C3 focus mainly on the quality of proposals"*). Cumulative search is C4's job. **See Q3 for sign-off.**
-- The **seed** governs only: (a) backend decode seed (already plumbed through `generate_cX`), (b) target-part iteration order. Same 3 seeds across C1/C2/C3 ⇒ paired comparisons (11.5).
+- The **run seed** governs: (a) a **per-proposal-attempt decode seed** `seed * ATTEMPT_SEED_STRIDE + attempt_index` (`ATTEMPT_SEED_STRIDE = 10_000`, well above `proposal_attempt_cap = 1500`, so each run seed's attempt-seed sub-sequence is disjoint from every other's), and (b) the target-part round-robin start (`seed % |parts|`). Same run seed ⇒ identical attempt-seed sequence ⇒ reproducible, and paired across C1/C2/C3 (11.5). Varying the decode seed per attempt is what lets a temperature>0 backend explore many distinct candidates within `N` instead of returning the same output every time and exhausting the space in single digits.
 - **Distinct-space exhaustion:** with atomic proposals over ~2–3 materials × 1–2 processes per part, the distinct candidate space across 10 parts is on the order of tens. If the ledger runs out of *new* candidates before reaching `N`, the run ends `COMPLETE_SPACE_EXHAUSTED` (new status, §"terminal statuses") at `n_eval_consumed < N`, reported honestly. The equal-budget *ceiling* is still identical; that a generative condition bottoms out earlier than C5 is itself a result (smaller effective reach per proposal).
 
 ### NSGA-II driver (C5)
