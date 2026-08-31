@@ -50,3 +50,72 @@ REPORTING BOUNDARY
   These are C5 *pilot* results only. Per docs/A11_C3_TRAINING_STATUS.md:160 and the
   transfer guide S1.2 / S15, they must NOT be presented as final-thesis C4-vs-C5 /
   hypervolume-superiority / H2 evidence, and no C1/C2/C3 comparison was produced.
+
+
+################################################################################
+# A12 unified experiment harness (C1/C2/C3/C5)
+# Date: 2026-08-31
+# Design: docs/A12_EXPERIMENT_HARNESS_DESIGN.md ; Status: docs/A12_EXPERIMENT_HARNESS_STATUS.md
+################################################################################
+
+CONTEXT
+  The entry above ran C5 alone in the old pilot's native format. A12 builds the
+  unified harness the earlier run lacked: one run-identity model (thesis 11.4),
+  one event log (11.16), one equal-budget definition (11.6), the 11.19 directory
+  contract, and the 11.15 statistical procedure -- for conditions C1, C2, C3, C5.
+  C4 (agentic loop) and C6 (human baseline) are out of scope for this pass.
+
+DECISION (user, 2026-08-31): run the FULL thesis protocol -- no reduced-seed
+  compromise. A real N=50 C1 calibration run put the whole C1/C2/C3/C5 sweep at
+  ~60 min, so the earlier draft's 3-seed reduction was retired.
+    seeds  : 10 independent, {0..9}, shared across C1/C2/C3/C5 (11.5). NO deviation.
+    budget : N = 50 deterministic objective evaluations, uniform across all four
+             conditions. NOT from a thesis manifest (the thesis fixes no N); chosen
+             as one number for all four. C5 is re-run at N=50 via
+             scripts/run_c5_real_pilot.py (now a shim over src/experiment/drivers.py
+             Nsga2Driver). The old results/c5_pilot/ (N=100 x10 seeds) is retained
+             as a historical record but is SUPERSEDED for A12.
+    parts  : all 10 frozen B4 pilot parts eligible for generative proposals
+             (supersedes run_c1_c2_pilot.py's 3 hard-coded parts).
+    order  : C1 -> C2 -> C3 -> C5, never interleaved, so the Ollama model, the MLX
+             LoRA model and the MiniLM embedder are never co-resident.
+
+DEVIATIONS FROM THE THESIS TEXT (small, documented, not silent)
+    11.19 "manifest.json"      -> run_config.json (identical field set; 11.19 permits
+                                  renaming). run_config.deviations defaults to [].
+    11.19 "runs/<cond>/<seed>/" -> runs/<cond>/seed_NN/ (zero-padded for sort order).
+    11.18 status vocabulary     -> + COMPLETE_SPACE_EXHAUSTED (atomic generative
+                                  proposals exhaust a small distinct space; see below).
+    C1-C6 full matrix           -> C1, C2, C3, C5 only. H2/H3/H4 rows in
+                                  results/hypothesis_tests.csv are emitted PENDING_C4.
+
+CALIBRATION (real, 2026-08-31) -- scripts/run_experiment.py path, C1, seed 0, N=50,
+  all 10 parts, Ollama llama3.1:8b:
+    wall-clock             : 103 s
+    proposal attempts (K)  : 37
+    distinct candidates    : 11   (n_eval_consumed)
+    per-attempt wall       : 2.79 s
+    validity funnel        : parse/schema/identifier/applicability/eval all 1.00
+    hallucination rate     : 0.0
+    terminal_status        : COMPLETE_SPACE_EXHAUSTED
+  C3 environment probe (src/experiment/probe.py, deep) PASSES on this host:
+  mlx 0.32.2 / mlx-lm 0.31.3, 4-bit base model + adapter load + generation OK.
+
+FINDINGS TO CARRY INTO CHAPTER 12 (auto-emitted to results/RUN_NOTES.md each run)
+  1. CANDIDATE-DIVERSITY CEILING. The atomic material_id/process_id space over the
+     10-part benchmark is ~11 wide. Every C1/C2/C3 run terminates
+     COMPLETE_SPACE_EXHAUSTED at ~11 distinct candidates; only C5 (NSGA-II) reaches
+     N=50. The equal-budget CEILING is shared; the REACH is not. C1/C2/C3 vs C5
+     hypervolume is a search-reach comparison, NOT a like-for-like budget comparison.
+  2. ZERO-HALLUCINATION BASELINE. C1 (ungrounded base LLM) produced 0 hallucinations
+     in calibration. RAG (C2) and fine-tuning (C3) cannot reduce a zero rate, so
+     H1's hallucination-reduction axis is reported as an absolute difference near 0
+     / NOT_COMPUTABLE (thesis 11.12). The measurable C1->C2->C3 signal on this
+     benchmark is candidate selection and the HV / validity-funnel trend, reported
+     descriptively (docs/A12 section 8).
+
+REPORTING BOUNDARY
+  The harness produces the full 11.19 artifact set and the H1 (C3 vs C2) paired
+  Wilcoxon. It does NOT produce H2 (C4 vs C5), H3 (C4 ablations) or H4 (transfer) --
+  those need C4. No result from this harness establishes C4-vs-C5 hypervolume
+  superiority or final H2-H4 acceptance.
