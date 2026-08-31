@@ -6,10 +6,10 @@ Step 1 starter repository for:
 
 ## Current stage
 
-A1 — Parametric BOM data contract.
+ Parametric BOM data contract.
 
 This starter intentionally contains **dummy engineering IDs** such as `TEST_MATERIAL_01`.
-They will be replaced with Person B's verified FSG 2026 data later.
+They will be replaced with  verified FSG 2026 data later.
 
 Cost and mass are deliberately not stored as authoritative BOM inputs.
 They will be computed by deterministic tools in later stages.
