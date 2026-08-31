@@ -9,7 +9,9 @@ Implemented backend abstraction:
 - `StubLLMBackend` for software tests only
 - `OllamaBackend` for local Ollama generation if Ollama and a model are already installed
 
-Current environment check found no usable real LLM backend. Stub outputs must not be reported as C1/C2 thesis results.
+As of 2026-08-31 a usable real LLM backend is available: `ollama` is installed and serving on `http://127.0.0.1:11434` with `llama3.1:8b` (digest `46e0c10c039e`, 4.9 GB) installed. `choose_ollama_model` selects `llama3.1:8b` (first entry in its preference list), so `OllamaBackend("llama3.1:8b")` is the model that drives real C1/C2 runs on this host.
+
+Stub outputs must still not be reported as C1/C2 results; only `OllamaBackend` runs count.
 
 ## Prompt Architecture
 
@@ -62,10 +64,24 @@ Production embedding model configured: `sentence-transformers/all-MiniLM-L6-v2`.
 
 Current vector backend: transparent NumPy cosine index.
 
-The current environment does not have `sentence_transformers` importable, so production MiniLM retrieval validation and real C2 execution are blocked here. The deterministic keyword-hash embedder is for software validation only and must not be described as SentenceTransformer RAG.
+As of 2026-08-31 `sentence_transformers` (6.0.0) is importable in `.venv`, so `SentenceTransformerEmbedder` with `all-MiniLM-L6-v2` now backs real C2 retrieval; the C1/C2 pilot below ran with it (mean 5.0 retrieved chunks per C2 proposal). The deterministic keyword-hash embedder remains software-validation only and must not be described as SentenceTransformer RAG.
+
+## C1/C2 Pilot Run (2026-08-31)
+
+`scripts/run_c1_c2_pilot.py` was run against the real backend above
+(`PYTHONPATH=$PWD .venv/bin/python scripts/run_c1_c2_pilot.py`).
+
+- Backend: `OllamaBackend` / `llama3.1:8b`; RAG: `SentenceTransformerEmbedder` (`all-MiniLM-L6-v2`), NumPy cosine index, top-k = 5
+- Inputs: `data/benchmark/pilot_10_parts_ground_truth.json`, `data/rag/corpus.jsonl`
+- Scope: 3 parts x 2 seeds (0, 1) x {C1, C2} = 12 proposals
+- Outputs: `results/a10_c1_c2_pilot.jsonl`, `results/a10_c1_c2_pilot_summary.json`
+
+Result: C1 and C2 both 6/6 parse-valid, 6/6 schema-valid, 6/6 authority-valid, 0/6 hallucinated; C2 averaged 5.0 retrieved chunks. Per-generation runtime 2.4-7.9 s.
+
+This confirms the C1/C2 pipeline end-to-end on the real Llama 3.1 8B + MiniLM stack. It is a **pilot / pipeline check only** (the script self-labels its summary `PILOT / PIPELINE CHECK ONLY`): 12 proposals over 3 parts and 2 seeds is not statistically powered to show a C1-vs-C2 difference, and these numbers must not be reported as final thesis C1/C2 results. The final experiment matrix is still not built.
 
 ## Thesis Wording Checks
 
-If the thesis states that Llama 3.1 8B was used, update it unless that exact model is actually installed and selected for the run.
+If the thesis states that Llama 3.1 8B was used: as of 2026-08-31 `llama3.1:8b` is installed and is the selected model, and the C1/C2 pilot ran on it. This is satisfied for the A10 pilot only — do not extend the claim to C3/C4 or final-thesis runs that have not been executed.
 
 If the thesis states that FAISS or Chroma is the implemented backend, update it unless such a backend is subsequently added; A9/A10 currently use NumPy cosine retrieval.
