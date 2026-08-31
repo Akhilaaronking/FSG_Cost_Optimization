@@ -86,12 +86,11 @@ class C4Driver:
         self.generator = generator
         self.retriever = retriever
         self.baseline_bom = baseline_bom
+        self._raw_evaluator = evaluator or _generative_evaluator()
+        # ledger is built in run() once the 1.2x reference point (for the
+        # eval-failure penalty) is known.
+        self.ledger = None
 
-        self.ledger = EqualBudgetLedger(
-            evaluator or _generative_evaluator(),
-            n_eval=self.n_eval,
-            proposal_attempt_cap=self.attempt_cap,
-        )
         self.selector = ArchiveGuidedSelector(
             self.target_part_ids,
             seed=self.seed,
@@ -130,6 +129,16 @@ class C4Driver:
         )
         baseline_vector = list(baseline_eval["objective_vector"])
         ref_point = reference_point(baseline_vector)
+
+        # a candidate whose deterministic evaluation raises (e.g. a
+        # process swap the frozen benchmark cannot cost) is scored with a
+        # large penalty -> dominated -> rejected, and the loop continues.
+        # Mirrors scripts/run_c5_real_pilot.py's _safe_real_evaluator.
+        self.ledger = EqualBudgetLedger(
+            _c4_safe_evaluator(self._raw_evaluator, ref_point),
+            n_eval=self.n_eval,
+            proposal_attempt_cap=self.attempt_cap,
+        )
 
         archive = ParetoArchive()
         x_t = self.baseline_bom
@@ -294,7 +303,13 @@ class C4Driver:
                             and archive_status in ACCEPT_STATUSES
                         )
                     if not accepted:
-                        reason = _rejection_reason(archive_status, feasible)
+                        reason = _rejection_reason(
+                            archive_status,
+                            feasible,
+                            (outcome.result.get("constraints") or {}).get(
+                                "status"
+                            ),
+                        )
 
                     if outcome.consumed_budget:
                         hv_trajectory.append(
@@ -449,7 +464,30 @@ def _selector_view(prev: dict) -> dict | None:
     }
 
 
-def _rejection_reason(archive_status, feasible) -> str:
+def _c4_safe_evaluator(inner, penalty_reference: list):
+    penalty = [penalty_reference[0] * 10.0, penalty_reference[1] * 10.0]
+
+    def evaluator(bom: dict) -> dict:
+        try:
+            return inner(bom)
+        except Exception as exc:
+            return {
+                "objective_vector": penalty,
+                "objectives": {"cost_eur": None, "mass_kg": None},
+                "constraints": {
+                    "status": "DETERMINISTIC_EVALUATION_FAILED",
+                    "feasible": False,
+                    "violation_count": 1,
+                    "errors": [str(exc)],
+                },
+            }
+
+    return evaluator
+
+
+def _rejection_reason(archive_status, feasible, status=None) -> str:
+    if status == "DETERMINISTIC_EVALUATION_FAILED":
+        return "deterministic evaluation failed for this candidate"
     if not feasible:
         return "infeasible (deterministic constraint violation)"
     if archive_status == "dominated":

@@ -301,3 +301,47 @@ def test_runoutcome_c4_extra_shape(tmp_path):
     }
     assert c4["steps"] == outcome.events_written
     assert 0.0 <= c4["acceptance_rate"] <= 1.0
+
+
+def test_evaluator_exception_is_penalised_not_crashed(tmp_path):
+    calls = {"n": 0}
+
+    def flaky_evaluator(bom):
+        calls["n"] += 1
+        if bom["parts"][0]["material_id"] == "STEEL_S235":
+            raise ValueError("Missing process input: time_min")
+        return fake_evaluator(bom)
+
+    responses = [
+        _proposal("PILOT_001", "AL_7075_T6"),   # ok -> improving
+        _proposal("PILOT_002", "STEEL_S235"),   # part[0] still AL_7075_T6 after P1
+        _proposal("PILOT_001", "STEEL_S235"),   # part[0] -> STEEL_S235 -> raises
+    ]
+    cfg = c4_run_config(n_eval=6, K=2, L=50, eps=0.0)
+    d = C4Driver(
+        cfg,
+        generator=ProposalGenerator(
+            CyclingBackend(responses), registry=DataRegistry()
+        ),
+        baseline_bom=baseline(),
+        evaluator=flaky_evaluator,
+    )
+    log = EventLog(tmp_path / "e.jsonl", run_id=cfg["run_id"],
+                   condition="C4_base", seed=0)
+    outcome = d.run(log, pareto_archive_path=tmp_path / "p.json")
+    log.close()
+
+    assert outcome.terminal_status in (
+        "COMPLETE",
+        "COMPLETE_CONVERGED",
+        "ABORTED_BUDGET_UNREACHED",
+    )
+    events = read_events(tmp_path / "e.jsonl")
+    failed = [
+        e
+        for e in events
+        if (e.get("evaluation") or {}).get("constraints", {}).get("status")
+        == "DETERMINISTIC_EVALUATION_FAILED"
+    ]
+    assert failed, "a failed-eval candidate should be recorded, not crash"
+    assert all(e["agentic"]["accepted"] is False for e in failed)
