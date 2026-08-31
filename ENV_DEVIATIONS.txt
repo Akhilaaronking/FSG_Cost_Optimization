@@ -1,0 +1,9 @@
+# Environment deviations from FSG_requirements-lock.txt
+# Destination: macOS 27.0 (build 26A5421a), Apple M4 Pro arm64, Python 3.12.14 (Homebrew)
+# Date: 2026-08-31
+
+scipy: locked 1.15.3 -> installed 1.18.1
+  reason: scipy 1.15.3 prebuilt arm64 wheel fails dlopen on macOS 27 dyld
+          (_propack/_spropack.*.so: '__DATA/__thread_bss zero-fill ... offset not zero')
+  scope:  transitive dep via sentence-transformers->sklearn; no PROPACK/SVDS use in pipeline
+  approved-by: user (2026-08-31)

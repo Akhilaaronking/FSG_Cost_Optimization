@@ -1,0 +1,52 @@
+# Experiment-run deviations from the requested "repo's own C1-C5 protocol"
+# Destination: macOS 27.0 (26A5421a), Apple M4 Pro arm64, Python 3.12.14 (Homebrew)
+# Date: 2026-08-31
+# Pattern: mirrors ENV_DEVIATIONS.txt from the environment transfer.
+
+CONTEXT
+  The request was to run C1-C5 "per the repo's own protocol / experiment config /
+  manifest files" and write results "per the existing results/ directory contract
+  (run_config.json, events.jsonl, metrics.json)".
+  None of those exist in this repo (commit e654c74):
+    - no C1-C6 experiment protocol / methodology doc (docs/ is A8-A11 status notes,
+      which explicitly say the final experiment matrix was NOT built:
+      docs/A10_LLM_STATUS.md:3, docs/A11_C3_TRAINING_STATUS.md:158,160)
+    - no experiment config / manifest defining seed count or evaluation budget
+      (configs/ holds only c3_mlx_lora.yaml, c3_mlx_smoke.yaml = LoRA training)
+    - no results/ directory contract; results/ had only .gitkeep; no code reads or
+      writes run_config.json / events.jsonl / metrics.json anywhere
+    - no C3 experiment runner (generate_c3() exists in src/llm/conditions.py:93 but
+      no script drives it); no C4 at all
+    - the two scripts that exist are self-labelled pilots with incompatible schemas:
+      scripts/run_c5_real_pilot.py  -> "REAL C5 PILOT - NOT FINAL THESIS EXPERIMENT"
+      scripts/run_c1_c2_pilot.py    -> "PILOT / PIPELINE CHECK ONLY" (C1+C2 only,
+                                        hardcoded 3 parts, seeds [0,1])
+
+DECISION (user, 2026-08-31): "Just C5 for now" - run only the self-contained
+  C5 NSGA-II pilot in its native output format; defer C1/C2/C3.
+
+WHAT WAS RUN
+  scripts/run_c5_real_pilot.py, unmodified.
+  budget      : 100 objective evaluations per seed
+                -> NOT from a repo manifest; it is the script's own default and the
+                   only evaluation-budget value the repo commits to.
+  seeds       : 0,1,2,3,4,5,6,7,8,9  (10 seeds)
+                -> NOT from a repo manifest; chosen to match the "10-seed" figure
+                   referenced in the run request. No time-driven reduction was
+                   applied (each C5 run is deterministic, ~0.1 s).
+  output dir  : results/c5_pilot/
+  output files: run_seed_<s>.json, pareto_seed_<s>.csv, summary_seed_<s>.json
+                -> the script's native contract, NOT run_config.json / events.jsonl
+                   / metrics.json (which the repo does not define).
+
+RESULT (all 10 seeds, actual_evaluations == 100 each)
+  hypervolume     : mean 18.666854, popstdev 1.115915, min 16.105312 (seed 1),
+                    max 20.197093 (seed 9)
+  normalized HV   : mean ~0.06385
+  baseline        : cost 312.02 EUR, mass 0.650710800 kg (identical across seeds)
+  pareto |F|      : 4 to 11 points depending on seed
+
+REPORTING BOUNDARY
+  These are C5 *pilot* results only. Per docs/A11_C3_TRAINING_STATUS.md:160 and the
+  transfer guide S1.2 / S15, they must NOT be presented as final-thesis C4-vs-C5 /
+  hypervolume-superiority / H2 evidence, and no C1/C2/C3 comparison was produced.
