@@ -42,8 +42,11 @@ class ProposalGenerator:
         retrieved_context: str | None = None,
         retrieval_metadata: dict | None = None,
         search_space: dict | None = None,
+        prompt_bundle_override=None,
     ) -> dict:
-        prompt_bundle = build_proposal_prompt(
+        # C4 passes a pre-built PromptBundle (build_c4_prompt); C1/C2/C3
+        # leave it None and get the standard single-shot proposal prompt.
+        prompt_bundle = prompt_bundle_override or build_proposal_prompt(
             bom,
             target_part,
             self.registry,

@@ -229,3 +229,99 @@ Do not omit target_field.
             }),
         },
     )
+
+
+# --- C4 agentic-loop prompt (docs/A13 section 3) ---------------------
+
+C4_TEMPLATE_TAG = "A13.C4.v1"
+
+_C4_ANCHOR = (
+    "TASK\n"
+    "Propose exactly ONE atomic BOM/design modification for the "
+    "target part."
+)
+
+_C4_INTENT_PHRASE = {
+    "reduce_cost": "reduce the total BOM cost",
+    "reduce_mass": "reduce the total BOM mass",
+    "fix_violation": (
+        "change this part to remove a deterministic constraint violation"
+    ),
+    "diversify": (
+        "make a different admissible change to this part to widen the "
+        "search"
+    ),
+}
+
+
+def build_c4_prompt(
+    bom: dict,
+    target_part: dict,
+    registry: DataRegistry | None = None,
+    *,
+    selection,
+    feedback_text: str,
+    archive_text: str,
+    retrieved_context: str | None = None,
+    search_space: dict | None = None,
+) -> PromptBundle:
+    """
+    C4 step prompt: the C1/C2/C3 proposal contract plus the agentic-loop
+    context (which part the policy chose and why, the evaluator feedback
+    from the previous step, and the current archive state). Applied to
+    the *working state* ``bom`` (x_t), not the frozen baseline.
+
+    Returns a PromptBundle so it drops into
+    ``ProposalGenerator.generate(prompt_bundle_override=...)``.
+    """
+    base = build_proposal_prompt(
+        bom,
+        target_part,
+        registry,
+        retrieved_context=retrieved_context,
+        search_space=search_space,
+    )
+
+    if _C4_ANCHOR not in base.prompt:
+        raise RuntimeError(
+            "build_proposal_prompt template changed; C4 anchor not found"
+        )
+
+    goal = _C4_INTENT_PHRASE.get(selection.intent, selection.intent)
+    c4_block = (
+        f"{_C4_ANCHOR}\n"
+        f"This is one step of a deterministic tool-loop search. The "
+        f"modification is applied to the CURRENT working BOM below "
+        f"(which already contains earlier accepted changes), then "
+        f"re-evaluated.\n\n"
+        f"SELECTION (chosen by the search policy this step)\n"
+        f"Target part: {selection.part_id}\n"
+        f"Goal: {goal}\n"
+        f"Policy note: {selection.policy_reason}\n\n"
+        f"EVALUATOR FEEDBACK (previous step)\n"
+        f"{feedback_text}\n\n"
+        f"ARCHIVE STATE\n"
+        f"{archive_text}"
+    )
+
+    prompt = base.prompt.replace(_C4_ANCHOR, c4_block, 1)
+
+    return PromptBundle(
+        prompt=prompt,
+        prompt_template_hash=sha256_text(
+            PROMPT_TEMPLATE_STRUCTURE + "\n" + C4_TEMPLATE_TAG
+        ),
+        prompt_hash=sha256_text(prompt),
+        template_structure=(
+            PROMPT_TEMPLATE_STRUCTURE + "\n" + C4_TEMPLATE_TAG
+        ),
+        rag_enabled=base.rag_enabled,
+        metadata={
+            **base.metadata,
+            "c4": True,
+            "selection": {
+                "part_id": selection.part_id,
+                "intent": selection.intent,
+            },
+        },
+    )
