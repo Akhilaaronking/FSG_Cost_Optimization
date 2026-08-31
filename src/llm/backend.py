@@ -72,9 +72,13 @@ class OllamaBackend:
         self,
         model_name: str,
         base_url: str = "http://127.0.0.1:11434",
+        enforce_schema: bool = True,
     ):
         self.model_name = model_name
         self.base_url = base_url.rstrip("/")
+        # enforce_schema=False is used only by the C4-Schema ablation
+        # (docs/A13 section 11); everything else keeps structured output.
+        self.enforce_schema = enforce_schema
 
     def generate(
         self,
@@ -92,13 +96,16 @@ class OllamaBackend:
         if seed is not None:
             options["seed"] = seed
 
-        payload = json.dumps({
+        body = {
             "model": self.model_name,
             "prompt": prompt,
             "stream": False,
-            "format": _load_ollama_output_schema(),
             "options": options,
-        }).encode("utf-8")
+        }
+        if self.enforce_schema:
+            body["format"] = _load_ollama_output_schema()
+
+        payload = json.dumps(body).encode("utf-8")
 
         request = urllib.request.Request(
             f"{self.base_url}/api/generate",

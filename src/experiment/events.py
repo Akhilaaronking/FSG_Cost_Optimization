@@ -24,7 +24,7 @@ from src.experiment.identity import HARNESS_VERSION, git_identity
 from src.llm.prompt_builder import sha256_text
 
 
-EVENT_TYPES = ("proposal", "nsga2_evaluation")
+EVENT_TYPES = ("proposal", "nsga2_evaluation", "agentic_step")
 
 FUNNEL_STAGES = (
     "parse",
