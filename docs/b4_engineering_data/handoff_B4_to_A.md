@@ -1,7 +1,7 @@
 # B4 Handoff — Pilot 10-Part BOM
 
-**From:** Aaron (Person B — data & validation)
-**To:** Person A (pipeline/optimization)
+**From:** engineering data & validation
+**To:** pipeline / optimization
 **Date:** 2026-08-22
 **Status:** FROZEN, ready for unit testing
 

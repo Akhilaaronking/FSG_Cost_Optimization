@@ -146,13 +146,13 @@ def _to_canonical(
 
 def load_b5_rules() -> dict:
     """
-    Load Person B's verified B5 dataset and route it into:
+    Load the verified B5 dataset and route it into:
 
     1. deterministic FSG rules
     2. non-deterministic review rules
     3. internal derived quality gates
 
-    Person B's source files are never modified.
+    The B5 source files are never modified.
     """
 
     data = _read_json(

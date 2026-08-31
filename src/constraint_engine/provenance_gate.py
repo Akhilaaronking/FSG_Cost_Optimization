@@ -9,7 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_REGISTER_PATH = (
     PROJECT_ROOT
     / "docs"
-    / "person_b_b4"
+    / "b4_engineering_data"
     / "source_register.csv"
 )
 

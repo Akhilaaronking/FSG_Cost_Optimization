@@ -29,21 +29,21 @@ SOURCE_REGISTER_PATHS = [
     PROJECT_ROOT / "docs" / "source_register.csv",
     PROJECT_ROOT
     / "docs"
-    / "person_b_b4"
+    / "b4_engineering_data"
     / "source_register.csv",
 ]
 MARKDOWN_INPUTS = [
     (
         PROJECT_ROOT
         / "docs"
-        / "person_b_b4"
+        / "b4_engineering_data"
         / "handoff_B5_to_A.md",
         "handoff_document",
     ),
     (
         PROJECT_ROOT
         / "docs"
-        / "person_b_b4"
+        / "b4_engineering_data"
         / "provenance_notes.md",
         "provenance_document",
     ),

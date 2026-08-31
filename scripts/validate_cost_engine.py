@@ -107,7 +107,7 @@ def main():
     if known_issues:
         print(
             "A4 BENCHMARK ALIGNMENT: "
-            "PENDING PERSON B CORRECTION"
+            "PENDING BENCHMARK-DATA CORRECTION"
         )
     else:
         print(

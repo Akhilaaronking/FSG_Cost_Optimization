@@ -31,7 +31,7 @@ def load_ground_truth():
 
 def test_all_10_ground_truth_masses():
     """
-    Every calculated mass must agree with Person B's
+    Every calculated mass must agree with the
     independently prepared manual ground truth.
     """
 
@@ -80,7 +80,7 @@ def test_ground_truth_total_mass():
 
 def test_canonical_mm3_volume_format():
     """
-    Verify compatibility with Person A's canonical BOM schema.
+    Verify compatibility with the canonical BOM schema.
     """
 
     registry = DataRegistry()

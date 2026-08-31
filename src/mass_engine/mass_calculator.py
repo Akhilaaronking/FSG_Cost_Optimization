@@ -9,10 +9,10 @@ def _get_volume_m3(part: dict) -> float:
     Return finished part volume in cubic metres.
 
     Supports:
-    1. Person B frozen pilot format:
+    1. Frozen B4 pilot format:
        part["volume_m3"]
 
-    2. Person A canonical BOM format:
+    2. Canonical BOM format:
        part["geometry"]["finished_volume_mm3"]
     """
 
@@ -91,7 +91,7 @@ def calculate_part_mass(
     """
     Calculate total mass considering part quantity.
 
-    Person B's pilot parts currently have no quantity field,
+    The frozen B4 pilot parts currently have no quantity field,
     so quantity defaults to 1.
     """
 

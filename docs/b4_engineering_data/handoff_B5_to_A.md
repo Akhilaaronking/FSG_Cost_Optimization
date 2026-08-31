@@ -1,7 +1,7 @@
 # B5 Handoff — Deterministic Constraint Dataset
 
-**From:** Aaron (Person B)
-**To:** Person A
+**From:** engineering data & validation
+**To:** pipeline / optimization
 **Date:** 2026-08-22
 
 ## B4 correction — confirmed matched

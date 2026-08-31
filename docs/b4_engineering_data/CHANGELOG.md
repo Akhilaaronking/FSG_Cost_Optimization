@@ -16,7 +16,7 @@ Format:
 
 ## data/benchmark/pilot_10_parts.json — v1 (FROZEN) — 2026-08-22
 - Frozen by: Aaron
-- Reason for freeze / what stage this supports: B4 pilot BOM for Person A's unit tests - all 10 parts complete
+- Reason for freeze / what stage this supports: B4 pilot BOM for the pipeline unit tests - all 10 parts complete
 - Known limitations at freeze time:
   - All process/print times are engineering-judgement estimates, not sourced from any external reference
   - PILOT_008 (battery box panel) cost is dominated by small-batch composite pricing (EUR499.75/kg) - worth a methodology note on small-quantity vs bulk sourcing cost inflation
@@ -26,7 +26,7 @@ Format:
 
 ## data/benchmark/pilot_10_parts.json — v2 (FROZEN, supersedes v1) — 2026-08-22
 - Frozen by: Aaron
-- Reason for freeze: correction to PILOT_004 flagged by Person A during A4 validation cross-check
+- Reason for freeze: correction to PILOT_004 flagged during A4 validation cross-check
 - Change: PILOT_004 material_cost_eur corrected 2.80 -> 2.79; total_cost_eur corrected 9.79 -> 9.78
   (v1 had a rounding error: exact calc is 0.05652 kg x EUR49.44/kg = EUR2.7943488 -> EUR2.79,
   not EUR2.80 as originally recorded)

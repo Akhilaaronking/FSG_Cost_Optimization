@@ -6,11 +6,11 @@ The A9 retrieval pipeline is operational. It is a grounding layer only; cost, ma
 
 - `data/processed/deterministic_constraints_B5.json`
 - `data/processed/rule_classification_B5.json`
-- `docs/person_b_b4/source_register.csv`
-- `docs/person_b_b4/handoff_B5_to_A.md`
-- `docs/person_b_b4/provenance_notes.md`
+- `docs/b4_engineering_data/source_register.csv`
+- `docs/b4_engineering_data/handoff_B5_to_A.md`
+- `docs/b4_engineering_data/provenance_notes.md`
 
-No actual FSG Rules 2026 PDF or extracted full-text file was found in the repository during A9 inspection. The corpus therefore uses Person B's local B5 rule extraction/classification records rather than downloading any external source.
+No actual FSG Rules 2026 PDF or extracted full-text file was found in the repository during A9 inspection. The corpus therefore uses the local B5 rule extraction/classification records rather than downloading any external source.
 
 ## Source Types
 
