@@ -1,0 +1,282 @@
+{
+  "archive_size": 6,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C4_base",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 133.01,
+        "cost_improvement_pct": 42.62867764886866,
+        "mass_improvement_pct": -31.07746175413103,
+        "mass_kg": -0.20222440000000008
+      },
+      "candidate_id": "C4_base_s1_t011",
+      "cost_eur": 179.01,
+      "mass_kg": 0.8529352000000001,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        179.01,
+        0.8529352000000001
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 132.82999999999998,
+        "cost_improvement_pct": 42.570989039164154,
+        "mass_improvement_pct": -29.675871370200092,
+        "mass_kg": -0.1931041
+      },
+      "candidate_id": "C4_base_s1_t010",
+      "cost_eur": 179.19,
+      "mass_kg": 0.8438149,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        179.19,
+        0.8438149
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 132.79,
+        "cost_improvement_pct": 42.55816934811871,
+        "mass_improvement_pct": -26.328808435329478,
+        "mass_kg": -0.17132439999999993
+      },
+      "candidate_id": "C4_base_s1_t015",
+      "cost_eur": 179.23,
+      "mass_kg": 0.8220352,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        179.23,
+        0.8220352
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 132.79,
+        "cost_improvement_pct": 42.55816934811871,
+        "mass_improvement_pct": -26.328808435329478,
+        "mass_kg": -0.17132439999999993
+      },
+      "candidate_id": "C4_base_s1_t024",
+      "cost_eur": 179.23,
+      "mass_kg": 0.8220352,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        }
+      ],
+      "objective_vector": [
+        179.23,
+        0.8220352
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 4.979999999999961,
+        "cost_improvement_pct": 1.5960515351579905,
+        "mass_improvement_pct": 0.7523926143534215,
+        "mass_kg": 0.004895900000000064
+      },
+      "candidate_id": "C4_base_s1_t000",
+      "cost_eur": 307.04,
+      "mass_kg": 0.6458149,
+      "modifications": [
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        }
+      ],
+      "objective_vector": [
+        307.04,
+        0.6458149
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 4.979999999999961,
+        "cost_improvement_pct": 1.5960515351579905,
+        "mass_improvement_pct": 0.7523926143534215,
+        "mass_kg": 0.004895900000000064
+      },
+      "candidate_id": "C4_base_s1_t004",
+      "cost_eur": 307.04,
+      "mass_kg": 0.6458149,
+      "modifications": [
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        307.04,
+        0.6458149
+      ]
+    }
+  ],
+  "hypervolume": 9.099404635039999,
+  "normalized_hypervolume": 0.031122898637320037,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:0cdf0c51e0d79058",
+  "seed": 1
+}

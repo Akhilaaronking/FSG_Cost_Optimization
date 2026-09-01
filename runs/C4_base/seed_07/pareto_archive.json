@@ -1,0 +1,271 @@
+{
+  "archive_size": 5,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C4_base",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 132.26999999999998,
+        "cost_improvement_pct": 42.39151336452791,
+        "mass_improvement_pct": -27.85944232061307,
+        "mass_kg": -0.1812843999999999
+      },
+      "candidate_id": "C4_base_s7_t020",
+      "cost_eur": 179.75,
+      "mass_kg": 0.8319951999999999,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        179.75,
+        0.8319951999999999
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 132.23,
+        "cost_improvement_pct": 42.37869367348247,
+        "mass_improvement_pct": -26.909711656852792,
+        "mass_kg": -0.17510440000000005
+      },
+      "candidate_id": "C4_base_s7_t011",
+      "cost_eur": 179.79,
+      "mass_kg": 0.8258152000000001,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        179.79,
+        0.8258152000000001
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 132.01,
+        "cost_improvement_pct": 42.30818537273252,
+        "mass_improvement_pct": -22.161058338051234,
+        "mass_kg": -0.1442043999999999
+      },
+      "candidate_id": "C4_base_s7_t012",
+      "cost_eur": 180.01,
+      "mass_kg": 0.7949151999999999,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        180.01,
+        0.7949151999999999
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 1.6899999999999977,
+        "cost_improvement_pct": 0.5416319466700845,
+        "mass_improvement_pct": 2.7661597133473044,
+        "mass_kg": 0.017999699999999952
+      },
+      "candidate_id": "C4_base_s7_t005",
+      "cost_eur": 310.33,
+      "mass_kg": 0.6327111000000001,
+      "modifications": [
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        }
+      ],
+      "objective_vector": [
+        310.33,
+        0.6327111000000001
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 1.5,
+        "cost_improvement_pct": 0.4807384142042177,
+        "mass_improvement_pct": 4.167750097278243,
+        "mass_kg": 0.027120000000000033
+      },
+      "candidate_id": "C4_base_s7_t001",
+      "cost_eur": 310.52,
+      "mass_kg": 0.6235908,
+      "modifications": [
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        }
+      ],
+      "objective_vector": [
+        310.52,
+        0.6235908
+      ]
+    }
+  ],
+  "hypervolume": 10.077828026040002,
+  "normalized_hypervolume": 0.03446942220054459,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:65d2f7c07fc65fc8",
+  "seed": 7
+}

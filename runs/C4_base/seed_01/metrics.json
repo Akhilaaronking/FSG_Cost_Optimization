@@ -1,0 +1,106 @@
+{
+  "budget": {
+    "n_eval_consumed": 11,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 4,
+    "proposal_attempts": 36
+  },
+  "c4": {
+    "ablation": null,
+    "acceptance_rate": 0.2222222222222222,
+    "accepted_steps": 8,
+    "converged": true,
+    "convergence_reason": "hv_plateau",
+    "hv_trajectory": [
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999,
+      9.099404635039999
+    ],
+    "mean_retries_per_selection": 1.1176470588235294,
+    "selection_intent_counts": {
+      "reduce_cost": 20,
+      "reduce_mass": 16
+    },
+    "steps": 36,
+    "stop_rule": "convergence"
+  },
+  "condition": "C4_base",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 0.018176794159548246,
+    "t100_sec_per_100_proposals": 1390.571063541736,
+    "total_tokens": null,
+    "wall_clock_sec": 500.605582875025
+  },
+  "hallucination": {
+    "categories": {},
+    "hr_all_proposals": 0.0,
+    "hr_schema_valid_only": 0.0
+  },
+  "multiobjective": {
+    "categorical_subset_hypervolume": 9.099404635039999,
+    "delta_hv": 9.099404635039999,
+    "hypervolume": 9.099404635039999,
+    "ideal_point": [
+      179.01,
+      0.6458149
+    ],
+    "min_ideal_point_distance": 0.6551731196331892,
+    "normalized_hypervolume": 0.031122898637320037,
+    "pareto_archive_size": 6,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": 179.01,
+    "cost_of_lowest_mass_eur": 307.04,
+    "lowest_mass_kg": 0.6458149,
+    "mass_of_best_cost_kg": 0.8529352000000001,
+    "n_pareto_improving": 3
+  },
+  "run_id": "sha256:0cdf0c51e0d79058",
+  "seed": 1,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "df8eae077753",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "COMPLETE_CONVERGED",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 36,
+      "identifier": 36,
+      "objective_evaluated": 15,
+      "parse": 36,
+      "schema": 36
+    },
+    "n_prop": 36,
+    "rates": {
+      "applicability": 1.0,
+      "identifier": 1.0,
+      "objective_evaluated": 0.4166666666666667,
+      "parse": 1.0,
+      "schema": 1.0
+    }
+  }
+}

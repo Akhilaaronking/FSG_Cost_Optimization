@@ -1,0 +1,136 @@
+{
+  "archive_size": 2,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C4_base",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 133.68999999999997,
+        "cost_improvement_pct": 42.846612396641234,
+        "mass_improvement_pct": -26.328808435329478,
+        "mass_kg": -0.17132439999999993
+      },
+      "candidate_id": "C4_base_s0_t026",
+      "cost_eur": 178.33,
+      "mass_kg": 0.8220352,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        }
+      ],
+      "objective_vector": [
+        178.33,
+        0.8220352
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 133.42999999999998,
+        "cost_improvement_pct": 42.763284404845834,
+        "mass_improvement_pct": -20.630424452767638,
+        "mass_kg": -0.13424439999999993
+      },
+      "candidate_id": "C4_base_s0_t032",
+      "cost_eur": 178.59,
+      "mass_kg": 0.7849552,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        }
+      ],
+      "objective_vector": [
+        178.59,
+        0.7849552
+      ]
+    }
+  ],
+  "hypervolume": 0.0,
+  "normalized_hypervolume": 0.0,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:1f3dd0eba56238bf",
+  "seed": 0
+}

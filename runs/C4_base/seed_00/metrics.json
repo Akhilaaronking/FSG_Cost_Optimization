@@ -1,0 +1,106 @@
+{
+  "budget": {
+    "n_eval_consumed": 11,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 4,
+    "proposal_attempts": 33
+  },
+  "c4": {
+    "ablation": null,
+    "acceptance_rate": 0.24242424242424243,
+    "accepted_steps": 8,
+    "converged": true,
+    "convergence_reason": "hv_plateau",
+    "hv_trajectory": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "mean_retries_per_selection": 1.2,
+    "selection_intent_counts": {
+      "reduce_cost": 17,
+      "reduce_mass": 16
+    },
+    "steps": 33,
+    "stop_rule": "convergence"
+  },
+  "condition": "C4_base",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 0.0,
+    "t100_sec_per_100_proposals": 1214.6241407818513,
+    "total_tokens": null,
+    "wall_clock_sec": 400.82596645801095
+  },
+  "hallucination": {
+    "categories": {},
+    "hr_all_proposals": 0.0,
+    "hr_schema_valid_only": 0.0
+  },
+  "multiobjective": {
+    "categorical_subset_hypervolume": 0.0,
+    "delta_hv": 0.0,
+    "hypervolume": 0.0,
+    "ideal_point": [
+      178.33,
+      0.7849552
+    ],
+    "min_ideal_point_distance": 0.0013258947239588716,
+    "normalized_hypervolume": 0.0,
+    "pareto_archive_size": 2,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": 178.33,
+    "cost_of_lowest_mass_eur": 178.59,
+    "lowest_mass_kg": 0.7849552,
+    "mass_of_best_cost_kg": 0.8220352,
+    "n_pareto_improving": 5
+  },
+  "run_id": "sha256:1f3dd0eba56238bf",
+  "seed": 0,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "df8eae077753",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "COMPLETE_CONVERGED",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 33,
+      "identifier": 33,
+      "objective_evaluated": 15,
+      "parse": 33,
+      "schema": 33
+    },
+    "n_prop": 33,
+    "rates": {
+      "applicability": 1.0,
+      "identifier": 1.0,
+      "objective_evaluated": 0.45454545454545453,
+      "parse": 1.0,
+      "schema": 1.0
+    }
+  }
+}

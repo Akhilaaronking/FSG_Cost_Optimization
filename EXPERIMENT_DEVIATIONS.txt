@@ -204,7 +204,8 @@ DEVIATIONS FROM THE THESIS TEXT (small, documented, not silent)
                                 compute automatically when both metric sets exist.
 
 C4-BASE PILOT (2026-09-01, scripts/run_experiment.py, N=50, attempt cap 300,
-  Ollama llama3.1:8b + RAG; 3 seeds):
+  Ollama llama3.1:8b + RAG; 3 seeds -- superseded by the 10-seed run below,
+  kept as the first-look record):
     seed 0 : COMPLETE_CONVERGED hv_plateau@0 | n_eval 11 | HV 0.000 | best cost
              178.33 EUR | lowest mass 0.7850 kg | accept 0.24 | 199 s
     seed 1 : COMPLETE_CONVERGED hv_plateau   | n_eval 11 | HV 9.099 | best cost
@@ -221,7 +222,57 @@ C4-BASE PILOT (2026-09-01, scripts/run_experiment.py, N=50, attempt cap 300,
   harness defect; it is the per-seed variance eq 11.21 is built to capture, and a
   weak/non-significant H2 for C4-base is a valid result (11.13).
 
-H3 ABLATION PILOT (2026-09-01, 3 seeds each; descriptive, no family correction)
+CANONICAL C4 (fine-tuned C3 adapter behind build_c4_prompt) -- DIAGNOSED
+  NON-FUNCTIONAL (2026-09-01, user, commits 05a605c + df8eae0). A 1-seed smoke
+  test (--condition C4 --seeds 0 --budget 50) run after the C3 backend fixes
+  (repetition penalty + system/user chat roles, 05a605c) reproduced the C3
+  failure signature exactly: constant raw_output_sha256 across steps/parts,
+  output truncating to {"change_type":"material_id"}, 100% SCHEMA_ERROR /
+  UNKNOWN_PART_ID, zero evaluations over 39+ steps / 5 parts before stop. Root
+  cause is the same as C3: the LoRA adapter (short-form templated training data)
+  does not generalise to production-length structured prompts, and C4's prompt
+  (SELECTION / FEEDBACK / ARCHIVE blocks on top of build_proposal_prompt) is
+  longer still. C3 and canonical C4 are reported together as one negative
+  finding. => H2 is evaluated as C4-BASE vs C5, not canonical-C4 vs C5.
+
+C4-BASE 10-SEED RUN (2026-09-01, scripts/run_experiment.py, N=50, cap 300;
+  runs/C4_base/seed_00..09/). All 10 seeds COMPLETE_CONVERGED via hv_plateau,
+  n_eval 11-22, acceptance mean 0.22, funnel 1.00, hr_all 0.00 every seed.
+  HV mean 8.73 / median 9.43 / sd 3.02 (mean dragged by seed 0's 0.0 -- the
+  mass-drift case, deterministic, reproduced). 9/10 seeds land HV 8.4-11.6 --
+  around/just above atomic C1/C2 (8.87-9.18), well below C5 (median 17.1).
+
+H2 -- C4-BASE vs C5 (eq 11.21; results/hypothesis_tests.csv, assembled by
+  scripts/aggregate_h2.py from the committed C1/C2/C3/C5 metrics + this run +
+  the ablation pilot -- C5 NOT re-run). scripts/refresh_metrics.py first
+  regenerated the committed C1/C2/C3/C5 metrics.json (HV byte-identical) so
+  categorical_subset_hypervolume (eq 3.53, added after the A12 sweep) is present.
+    paired 10 shared seeds, d_i = HV_C4base,i - HV_C5,i, one-sided Wilcoxon:
+    final_hypervolume (3.52)              : C5 15.91 vs C4_base 8.73, d_i -7.17,
+                                            d_z -1.90, p 1.0 -> NOT_SUPPORTED
+    categorical_subset_hypervolume (3.53) : identical (material_id/process_id are
+                                            the only decision vars, so the
+                                            categorical subset == the full
+                                            archive) -> NOT_SUPPORTED
+  Per 11.13 a non-significant H2 is a valid result; here it reflects the base
+  backend's limits (no backtracking, weaker generation, seed-0 drift) against a
+  mature NSGA-II, not a broken measurement.
+
+METRICS REFRESH (scripts/refresh_metrics.py). metrics.json is declared
+  regenerable from run_config.json + events.jsonl + pareto_archive.json (A12
+  section 5). The committed C1/C2/C3/C5 metrics.json predate
+  categorical_subset_hypervolume, so H2's eq-3.53 row could not pair. The script
+  re-derives them in place (no re-run, no LLM/evaluator calls; terminal_status
+  and wall_clock_sec carried over) -- every HV is byte-identical, only the new
+  field (and a null "c4" block) is added.
+
+REPORT TABLE ORDER. scripts/run_experiment.py's per-condition tables
+  (write_run_notes, _summary_block) now iterate _ordered(by_condition) instead of
+  the fixed CONDITION_ORDER = (C1,C2,C3,C5), so a run that folds in C4/C4_base/
+  ablation conditions lists them too. "all" still means C1/C2/C3/C5 only.
+
+H3 ABLATION PILOT (2026-09-01, 3-seed ablations vs 10-seed C4-base HR;
+  descriptive, no family correction)
     no_rag        : 3x COMPLETE_CONVERGED | n_eval 11-18 | hr_all 0.00 x3 |
                     HV 0 / 9.36 / 8.34. RAG removal did NOT raise hallucination
                     (base model already hallucination-free -- the A12
@@ -246,7 +297,11 @@ H3 ABLATION PILOT (2026-09-01, 3 seeds each; descriptive, no family correction)
       hallucination axis was NOT_COMPUTABLE. no_schema correctly excluded.
 
 REPORTING BOUNDARY
-  A13 delivers the C4 loop and a C4-base pilot on the frozen B4 pilot benchmark.
-  It does NOT run canonical C4 (blocked on the C3 adapter), does NOT evaluate H2
-  (C4 vs C5) or a full H3, and does NOT implement C6. No result here establishes
-  C4-vs-C5 hypervolume superiority or final H2-H4 acceptance.
+  A13 delivers the C4 loop, a 10-seed C4-base run and a 3-seed ablation pilot on
+  the frozen B4 pilot benchmark, and computes H2 as C4-BASE vs C5 (NOT_SUPPORTED,
+  eq 3.52 and 3.53) plus H3 at pilot scope (eq 10.39 SUPPORTED, eq 10.38
+  NOT_SUPPORTED on a tie at HR=0). Canonical C4 is diagnosed non-functional (same
+  root cause as C3) and is NOT run to completion; a full 10-seed H3 and C6 are
+  out of scope. No result here establishes C4-vs-C5 hypervolume superiority or
+  final H2-H4 acceptance; the H2 result stands as a valid non-significant finding
+  (11.13), not such an establishment.

@@ -5,6 +5,7 @@
     "objective_eval_cache_hits": 0,
     "proposal_attempts": 0
   },
+  "c4": null,
   "condition": "C5",
   "constraints": {
     "cvr_proposal_level": null,
@@ -24,6 +25,7 @@
     "hr_schema_valid_only": null
   },
   "multiobjective": {
+    "categorical_subset_hypervolume": 14.784213231239997,
     "delta_hv": 14.784213231239997,
     "hypervolume": 14.784213231239997,
     "ideal_point": [

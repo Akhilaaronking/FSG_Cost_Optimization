@@ -1,0 +1,110 @@
+{
+  "budget": {
+    "n_eval_consumed": 14,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 9,
+    "proposal_attempts": 61
+  },
+  "c4": {
+    "ablation": null,
+    "acceptance_rate": 0.13114754098360656,
+    "accepted_steps": 8,
+    "converged": true,
+    "convergence_reason": "hv_plateau",
+    "hv_trajectory": [
+      8.12139135264,
+      8.12139135264,
+      8.419416899039994,
+      10.411972499039997,
+      11.52672139984,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001,
+      11.554948596640001
+    ],
+    "mean_retries_per_selection": 1.3461538461538463,
+    "selection_intent_counts": {
+      "diversify": 2,
+      "reduce_cost": 31,
+      "reduce_mass": 28
+    },
+    "steps": 61,
+    "stop_rule": "convergence"
+  },
+  "condition": "C4_base",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 0.03278121122530851,
+    "t100_sec_per_100_proposals": 577.8474307377617,
+    "total_tokens": null,
+    "wall_clock_sec": 352.4869327500346
+  },
+  "hallucination": {
+    "categories": {},
+    "hr_all_proposals": 0.0,
+    "hr_schema_valid_only": 0.0
+  },
+  "multiobjective": {
+    "categorical_subset_hypervolume": 11.554948596640001,
+    "delta_hv": 11.554948596640001,
+    "hypervolume": 11.554948596640001,
+    "ideal_point": [
+      179.23,
+      0.6149149
+    ],
+    "min_ideal_point_distance": 0.6441284055862373,
+    "normalized_hypervolume": 0.03952165096030916,
+    "pareto_archive_size": 4,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": 179.23,
+    "cost_of_lowest_mass_eur": 304.96,
+    "lowest_mass_kg": 0.6149149,
+    "mass_of_best_cost_kg": 0.8220352,
+    "n_pareto_improving": 4
+  },
+  "run_id": "sha256:54208efae506bf2a",
+  "seed": 9,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "df8eae077753",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "COMPLETE_CONVERGED",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 61,
+      "identifier": 61,
+      "objective_evaluated": 23,
+      "parse": 61,
+      "schema": 61
+    },
+    "n_prop": 61,
+    "rates": {
+      "applicability": 1.0,
+      "identifier": 1.0,
+      "objective_evaluated": 0.3770491803278688,
+      "parse": 1.0,
+      "schema": 1.0
+    }
+  }
+}

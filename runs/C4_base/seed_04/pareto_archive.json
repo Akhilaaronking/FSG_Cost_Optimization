@@ -1,0 +1,171 @@
+{
+  "archive_size": 3,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C4_base",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 132.26,
+        "cost_improvement_pct": 42.388308441766554,
+        "mass_improvement_pct": -27.85944232061307,
+        "mass_kg": -0.1812843999999999
+      },
+      "candidate_id": "C4_base_s4_t015",
+      "cost_eur": 179.76,
+      "mass_kg": 0.8319951999999999,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        }
+      ],
+      "objective_vector": [
+        179.76,
+        0.8319951999999999
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": 131.99999999999997,
+        "cost_improvement_pct": 42.30498044997115,
+        "mass_improvement_pct": -22.161058338051234,
+        "mass_kg": -0.1442043999999999
+      },
+      "candidate_id": "C4_base_s4_t043",
+      "cost_eur": 180.02,
+      "mass_kg": 0.7949151999999999,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        }
+      ],
+      "objective_vector": [
+        180.02,
+        0.7949151999999999
+      ]
+    },
+    {
+      "baseline_delta": {
+        "cost_eur": -0.06999999999999318,
+        "cost_improvement_pct": -0.022434459329527975,
+        "mass_improvement_pct": 3.218019433517942,
+        "mass_kg": 0.02094000000000007
+      },
+      "candidate_id": "C4_base_s4_t002",
+      "cost_eur": 312.09,
+      "mass_kg": 0.6297708,
+      "modifications": [
+        {
+          "baseline": "CNC_MILLING",
+          "candidate": "CNC_TURNING",
+          "field": "process_id",
+          "part_id": "PILOT_001"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "ABS_3DPRINT",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_009"
+        }
+      ],
+      "objective_vector": [
+        312.09,
+        0.6297708
+      ]
+    }
+  ],
+  "hypervolume": 9.417555361440005,
+  "normalized_hypervolume": 0.03221107673317121,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:db98b492c06b60ae",
+  "seed": 4
+}
