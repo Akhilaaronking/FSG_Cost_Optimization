@@ -216,7 +216,7 @@ class MLXLoRABackend:
         try:
             import mlx.core as mx
             from mlx_lm import generate as mlx_generate
-            from mlx_lm.sample_utils import make_sampler
+            from mlx_lm.sample_utils import make_sampler, make_repetition_penalty
         except ImportError as exc:
             raise RuntimeError(
                 "MLX and MLX-LM are required "
@@ -228,7 +228,17 @@ class MLXLoRABackend:
         if seed is not None:
             mx.random.seed(seed)
 
+        system_msg = (
+            "You generate atomic Formula Student BOM proposals for "
+            "deterministic evaluation. Use only the part-specific approved "
+            "material/process search space and reject inadmissible requests."
+        )
+
         messages = [
+            {
+                "role": "system",
+                "content": system_msg,
+            },
             {
                 "role": "user",
                 "content": prompt,
@@ -249,6 +259,7 @@ class MLXLoRABackend:
         sampler = make_sampler(
             temp=temperature,
         )
+        rep_penalty = make_repetition_penalty(1.3)
 
         return mlx_generate(
             model,
@@ -256,6 +267,7 @@ class MLXLoRABackend:
             prompt=formatted_prompt,
             max_tokens=max_tokens,
             sampler=sampler,
+            logits_processors=[rep_penalty],
             verbose=False,
         )
 
