@@ -46,7 +46,8 @@ MODIFICATION_FIELDS = ("material_id", "process_id")
 
 # Per-proposal decode seed = run_seed * ATTEMPT_SEED_STRIDE + attempt_index
 # (attempt_index is 1-based, == ledger.proposal_attempts at call time).
-# The stride is well above proposal_attempt_cap (1500) so the seed
+# The stride is well above any proposal_attempt_cap (1500 generative /
+# max(150, 6*N) for C4) so the seed
 # sub-sequences for different run seeds never overlap: same run seed ->
 # identical attempt-seed sequence (reproducible, and paired across
 # C1/C2/C3 per 11.5); different run seeds -> disjoint sequences.

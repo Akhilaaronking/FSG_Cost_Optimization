@@ -335,6 +335,10 @@ def test_dry_run_writes_c4_loop_spec(tmp_path):
     }
     assert loop["retry_cap_K"] == 3
     assert loop["ablation"] is None
+    # C4 tool-loop cap is max(150, 6*N), far tighter than the 1500
+    # generative cap (a >2 h/seed landmine for a non-functional loop).
+    assert loop["proposal_attempt_cap"] == 300
+    assert cfg["identity"]["budget"]["proposal_attempt_cap"] == 300
 
     abl = json.loads(
         (

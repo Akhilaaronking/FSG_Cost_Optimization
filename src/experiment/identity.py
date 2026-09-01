@@ -87,7 +87,7 @@ def c4_loop_spec(condition: str, n_eval: int) -> dict:
             "variant": "delta",
         },
         "retry_cap_K": C4_RETRY_CAP_K,
-        "proposal_attempt_cap": PROPOSAL_ATTEMPT_CAP,
+        "proposal_attempt_cap": c4_attempt_cap(n_eval),
         "select_policy": C4_SELECT_POLICY,
         "feedback_mode": C4_FEEDBACK_MODE,
         "ablation": c4_ablation(condition),
@@ -98,7 +98,22 @@ def c4_loop_spec(condition: str, n_eval: int) -> dict:
 # whole C1/C2/C3/C5 sweep at ~60 min, so no reduced-seed compromise.
 DEFAULT_SEEDS = tuple(range(10))
 DEFAULT_N_EVAL = 50
+# C1/C2/C3 (atomic, single-shot): a generous cap -- these conditions
+# terminate COMPLETE_SPACE_EXHAUSTED at ~11-16 attempts anyway.
 PROPOSAL_ATTEMPT_CAP = 1500
+
+# C4 (tool-loop): a much tighter cap. Healthy C4-base seeds spend 20-100
+# attempts; the deep-drift runaway was ~600. At ~5 s/LLM call the old
+# 1500 was a >2 h/seed landmine for a non-functional condition (the
+# no_schema ablation cap-out took ~2.4 h/seed). max(150, 6*N) fails a
+# broken condition fast (~25 min at N=50) with 3-5x headroom for healthy
+# runs.
+C4_ATTEMPT_CAP_FLOOR = 150
+C4_ATTEMPT_CAP_PER_EVAL = 6
+
+
+def c4_attempt_cap(n_eval: int) -> int:
+    return max(C4_ATTEMPT_CAP_FLOOR, C4_ATTEMPT_CAP_PER_EVAL * int(n_eval))
 
 DECODE = {
     "temperature": 0.2,
@@ -425,8 +440,10 @@ def build_budget(condition: str, n_eval: int) -> dict:
         "n_eval": int(n_eval),
         "duplicate_policy": DUPLICATE_POLICY,
         "proposal_attempt_cap": (
-            PROPOSAL_ATTEMPT_CAP
-            if (condition in GENERATIVE_CONDITIONS or is_c4(condition))
+            c4_attempt_cap(n_eval)
+            if is_c4(condition)
+            else PROPOSAL_ATTEMPT_CAP
+            if condition in GENERATIVE_CONDITIONS
             else None
         ),
     }

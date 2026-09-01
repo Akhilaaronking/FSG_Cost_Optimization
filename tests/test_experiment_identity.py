@@ -6,6 +6,7 @@ from src.experiment.identity import (
     CONDITIONS,
     build_identity,
     build_run_config,
+    c4_attempt_cap,
     compute_run_id,
     seed_dir_name,
     write_run_config,
@@ -22,6 +23,19 @@ def run_config(condition, seed=0, n_eval=50):
         n_eval=n_eval,
         target_parts=TARGET_PARTS,
     )
+
+
+def test_c4_attempt_cap_is_tight_with_a_floor():
+    assert c4_attempt_cap(50) == 300          # 6 * N
+    assert c4_attempt_cap(10) == 150          # floor wins
+    assert c4_attempt_cap(1) == 150
+    assert c4_attempt_cap(50) < 1500          # far below the generative cap
+
+
+def test_c4_loop_and_budget_agree_on_the_attempt_cap():
+    cfg = run_config("C4_base")
+    assert cfg["condition_spec"]["c4_loop"]["proposal_attempt_cap"] == 300
+    assert cfg["identity"]["budget"]["proposal_attempt_cap"] == 300
 
 
 def test_all_conditions_build_a_run_config():
