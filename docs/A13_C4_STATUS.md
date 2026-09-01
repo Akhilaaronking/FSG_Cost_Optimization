@@ -12,18 +12,50 @@ full repository suite 361 passing) and **pilot-run against the base backend
   still shallow, and compounding on a working state buys only a handful of
   accepted moves before the front stops improving.
 - **Canonical C4** (fine-tuned C3 backend swapped in for Ollama, zero loop
-  changes) is **not run** — it is blocked on the same C3 adapter defect
-  documented in `docs/A12_EXPERIMENT_HARNESS_STATUS.md` and
-  `docs/A11_C3_TRAINING_STATUS.md`. The loop, identity, metrics and CSV rows
-  are all in place for it.
+  changes) was smoke-tested (1 seed, `N=50`, 2026-09-01) after the C3 backend
+  fixes (commit `05a605c`: repetition penalty + system/user chat roles) were
+  applied and verified. Result: **diagnosed non-functional**, same root cause
+  as C3 -- see "Canonical C4 -- Diagnosed Non-Functional" below. The loop,
+  identity, metrics and CSV rows are all in place for it.
 - **H3 ablation pilot** (3 seeds each): `no_rag` and `no_validator` behave as
   expected; `no_schema` is **non-functional** on this backend (same class as
   C3) and is recorded as a degenerate/aborted ablation, excluded from
   inferential H3 (11.18).
-- **H2 (C4 vs C5)** and a full H3 are **not evaluated** — they need a canonical
-  C4 run (or an explicit decision to report C4-base against C5). The
-  `hypothesis_tests.csv` rows compute the moment both sets of metrics are
-  present.
+- **H2 (C4 vs C5)** is evaluated as **C4-base vs C5**, per the contingency
+  already noted above (an explicit decision to report C4-base against C5),
+  since canonical C4 is diagnosed non-functional. A full H3 remains not
+  evaluated (no functional canonical-adapter condition exists to complete it).
+
+## Canonical C4 -- Diagnosed Non-Functional (same mechanism as C3)
+
+A 1-seed smoke test of canonical C4 (`--condition C4 --seeds 0 --budget 50`)
+was run after the C3 backend fixes (repetition penalty, system/user chat
+roles -- commit `05a605c`) were applied and verified via isolated diagnostic.
+Canonical C4 reuses the C3 fine-tuned adapter, wrapped in
+`build_c4_prompt()`, which adds SELECTION / FEEDBACK / ARCHIVE blocks on top
+of `build_proposal_prompt()` -- an even longer prompt than C3's.
+
+Result: identical failure signature to the diagnosed C3 pilot --
+`raw_output_sha256` constant across steps and target parts, output truncates
+to `{"change_type":"material_id"}`, 100% `SCHEMA_ERROR` / `UNKNOWN_PART_ID`,
+zero evaluations, across 39+ steps and 5 distinct parts before the run was
+stopped. This confirms canonical C4 is non-functional for the same root
+cause already diagnosed for C3: the LoRA adapter (trained on short-form,
+1-3 sentence templated examples) does not generalize to production-length
+structured prompts -- and C4's prompt is longer still than C3's.
+
+**Disposition:** H2 is evaluated as C4-base vs C5 rather than canonical-C4
+vs C5, per the contingency already documented above -- not a new scope
+decision. A weak or non-significant H2 result under C4-base is itself a
+valid, citable result (per SS11.13, already invoked for the C4-base seed-0
+drift finding), reflecting the base backend's known limitations (no
+backtracking, weaker generation) rather than a null result from a broken
+measurement.
+
+Canonical C4 and C3 are reported together as a single diagnosed negative
+finding: schema-constrained fine-tuning on short templated examples does not
+transfer to the long, structured, RAG-integrated prompts used in production,
+across both the single-shot (C3) and agentic-loop (canonical C4) conditions.
 
 Design: `docs/A13_C4_AGENTIC_LOOP_DESIGN.md` (decisions LOCKED 2026-08-31).
 Deviation record: `EXPERIMENT_DEVIATIONS.txt` (A13 section).
