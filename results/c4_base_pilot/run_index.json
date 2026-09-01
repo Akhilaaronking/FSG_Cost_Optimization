@@ -1,0 +1,30 @@
+{
+  "conditions": [
+    "C4_base_no_rag",
+    "C4_base_no_schema",
+    "C4_base_no_validator"
+  ],
+  "created_utc": "2026-09-01T03:39:19Z",
+  "deviations": [],
+  "git": {
+    "commit": "28e1b99ad3192bc568bec56d6b53c0a47df58a6c",
+    "tracked_dirty": false,
+    "untracked_files": 1
+  },
+  "runs": {
+    "sha256:15c4c57e82572e99": "runs/C4_base_no_schema/seed_01",
+    "sha256:584a858898be6495": "runs/C4_base_no_schema/seed_00",
+    "sha256:623140f4382cd29e": "runs/C4_base_no_rag/seed_00",
+    "sha256:97218f7731a7a384": "runs/C4_base_no_rag/seed_02",
+    "sha256:9ff72afcbb30e872": "runs/C4_base_no_validator/seed_02",
+    "sha256:b73e2604f3199a14": "runs/C4_base_no_validator/seed_00",
+    "sha256:deec1d5e6f21eba0": "runs/C4_base_no_schema/seed_02",
+    "sha256:e80fb9c0f1c84282": "runs/C4_base_no_rag/seed_01",
+    "sha256:ee93fc18a14ee252": "runs/C4_base_no_validator/seed_01"
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ]
+}

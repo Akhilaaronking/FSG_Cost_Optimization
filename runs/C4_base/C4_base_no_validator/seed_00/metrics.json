@@ -1,0 +1,108 @@
+{
+  "budget": {
+    "n_eval_consumed": 11,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 0,
+    "proposal_attempts": 40
+  },
+  "c4": {
+    "ablation": "no_validator",
+    "acceptance_rate": 0.275,
+    "accepted_steps": 11,
+    "converged": true,
+    "convergence_reason": "hv_plateau",
+    "hv_trajectory": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "mean_retries_per_selection": 1.105263157894737,
+    "selection_intent_counts": {
+      "reduce_cost": 20,
+      "reduce_mass": 20
+    },
+    "steps": 40,
+    "stop_rule": "convergence"
+  },
+  "condition": "C4_base_no_validator",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 0.0,
+    "t100_sec_per_100_proposals": 518.7740973949258,
+    "total_tokens": null,
+    "wall_clock_sec": 207.5096389579703
+  },
+  "hallucination": {
+    "categories": {
+      "UNKNOWN_PROCESS_ID": 1
+    },
+    "hr_all_proposals": 0.025,
+    "hr_schema_valid_only": 0.025
+  },
+  "multiobjective": {
+    "categorical_subset_hypervolume": 0.0,
+    "delta_hv": 0.0,
+    "hypervolume": 0.0,
+    "ideal_point": [
+      184.73,
+      0.8368911
+    ],
+    "min_ideal_point_distance": 0.0,
+    "normalized_hypervolume": 0.0,
+    "pareto_archive_size": 1,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": 184.73,
+    "cost_of_lowest_mass_eur": 184.73,
+    "lowest_mass_kg": 0.8368911,
+    "mass_of_best_cost_kg": 0.8368911,
+    "n_pareto_improving": 4
+  },
+  "run_id": "sha256:b73e2604f3199a14",
+  "seed": 0,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "28e1b99ad319",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "COMPLETE_CONVERGED",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 39,
+      "identifier": 39,
+      "objective_evaluated": 11,
+      "parse": 40,
+      "schema": 40
+    },
+    "n_prop": 40,
+    "rates": {
+      "applicability": 0.975,
+      "identifier": 0.975,
+      "objective_evaluated": 0.275,
+      "parse": 1.0,
+      "schema": 1.0
+    }
+  }
+}

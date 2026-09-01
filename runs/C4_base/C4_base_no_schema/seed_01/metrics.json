@@ -1,0 +1,95 @@
+{
+  "budget": {
+    "n_eval_consumed": 0,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 0,
+    "proposal_attempts": 1500
+  },
+  "c4": {
+    "ablation": "no_schema",
+    "acceptance_rate": 0.0,
+    "accepted_steps": 0,
+    "converged": false,
+    "convergence_reason": null,
+    "hv_trajectory": [],
+    "mean_retries_per_selection": 2.0,
+    "selection_intent_counts": {
+      "diversify": 1470,
+      "reduce_cost": 15,
+      "reduce_mass": 15
+    },
+    "steps": 1500,
+    "stop_rule": "attempt_cap"
+  },
+  "condition": "C4_base_no_schema",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 0.0,
+    "t100_sec_per_100_proposals": 549.4932463555364,
+    "total_tokens": null,
+    "wall_clock_sec": 8242.398695333046
+  },
+  "hallucination": {
+    "categories": {
+      "PARSE_ERROR": 1500,
+      "SCHEMA_ERROR": 1500
+    },
+    "hr_all_proposals": 1.0,
+    "hr_schema_valid_only": null
+  },
+  "multiobjective": {
+    "categorical_subset_hypervolume": null,
+    "delta_hv": 0.0,
+    "hypervolume": 0.0,
+    "ideal_point": null,
+    "min_ideal_point_distance": null,
+    "normalized_hypervolume": 0.0,
+    "pareto_archive_size": 0,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": null,
+    "cost_of_lowest_mass_eur": null,
+    "lowest_mass_kg": null,
+    "mass_of_best_cost_kg": null,
+    "n_pareto_improving": 0
+  },
+  "run_id": "sha256:15c4c57e82572e99",
+  "seed": 1,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "28e1b99ad319",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "ABORTED_BUDGET_UNREACHED",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 0,
+      "identifier": 0,
+      "objective_evaluated": 0,
+      "parse": 0,
+      "schema": 0
+    },
+    "n_prop": 1500,
+    "rates": {
+      "applicability": 0.0,
+      "identifier": 0.0,
+      "objective_evaluated": 0.0,
+      "parse": 0.0,
+      "schema": 0.0
+    }
+  }
+}

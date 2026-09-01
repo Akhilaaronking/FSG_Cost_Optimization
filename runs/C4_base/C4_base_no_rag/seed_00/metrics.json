@@ -1,0 +1,106 @@
+{
+  "budget": {
+    "n_eval_consumed": 11,
+    "n_eval_target": 50,
+    "objective_eval_cache_hits": 5,
+    "proposal_attempts": 20
+  },
+  "c4": {
+    "ablation": "no_rag",
+    "acceptance_rate": 0.35,
+    "accepted_steps": 7,
+    "converged": true,
+    "convergence_reason": "hv_plateau",
+    "hv_trajectory": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "mean_retries_per_selection": 0.6666666666666666,
+    "selection_intent_counts": {
+      "reduce_cost": 8,
+      "reduce_mass": 12
+    },
+    "steps": 20,
+    "stop_rule": "convergence"
+  },
+  "condition": "C4_base_no_rag",
+  "constraints": {
+    "cvr_proposal_level": null,
+    "cvr_rule_level": null,
+    "missing_essential_fields_count": 0,
+    "n_deterministically_checked": 0
+  },
+  "efficiency": {
+    "eta_hv_per_sec": 0.0,
+    "t100_sec_per_100_proposals": 501.787126249983,
+    "total_tokens": null,
+    "wall_clock_sec": 100.3574252499966
+  },
+  "hallucination": {
+    "categories": {},
+    "hr_all_proposals": 0.0,
+    "hr_schema_valid_only": 0.0
+  },
+  "multiobjective": {
+    "categorical_subset_hypervolume": 0.0,
+    "delta_hv": 0.0,
+    "hypervolume": 0.0,
+    "ideal_point": [
+      178.87,
+      0.8158752
+    ],
+    "min_ideal_point_distance": 0.0,
+    "normalized_hypervolume": 0.0,
+    "pareto_archive_size": 1,
+    "reference_point": [
+      374.424,
+      0.78085296
+    ]
+  },
+  "objectives": {
+    "baseline": {
+      "cost_eur": 312.02,
+      "mass_kg": 0.6507108
+    },
+    "best_cost_eur": 178.87,
+    "cost_of_lowest_mass_eur": 178.87,
+    "lowest_mass_kg": 0.8158752,
+    "mass_of_best_cost_kg": 0.8158752,
+    "n_pareto_improving": 5
+  },
+  "run_id": "sha256:623140f4382cd29e",
+  "seed": 0,
+  "software": {
+    "evaluator_version": "A6.1",
+    "git_commit": "28e1b99ad319",
+    "git_tracked_dirty": false,
+    "harness_version": "A12.1"
+  },
+  "terminal_status": "COMPLETE_CONVERGED",
+  "validity_funnel": {
+    "counts": {
+      "applicability": 20,
+      "identifier": 20,
+      "objective_evaluated": 16,
+      "parse": 20,
+      "schema": 20
+    },
+    "n_prop": 20,
+    "rates": {
+      "applicability": 1.0,
+      "identifier": 1.0,
+      "objective_evaluated": 0.8,
+      "parse": 1.0,
+      "schema": 1.0
+    }
+  }
+}

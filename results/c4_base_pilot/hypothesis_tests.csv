@@ -1,0 +1,5 @@
+hypothesis,comparison,metric,c_ref,c_test,ref_mean,test_mean,relative_reduction_pct,absolute_reduction,W_statistic,p_one_sided,alpha_corrected,effect_size_dz,effect_size_rrb,n_nonzero_pairs,threshold_pct,threshold_met,significant,decision,notes
+H1,C3_vs_C2,hallucination_rate,,,,,,,,,,,,,,,,NOT_COMPUTABLE,C2 and/or C3 metrics not present
+H2,C4_vs_C5,final_hypervolume,,,,,,,,,,,,,,,,PENDING_C4,C4/C4_base and/or C5 metrics not present
+H3,C4_vs_ablations,,,,,,,,,,,,,,,,,PENDING_C4,C4/C4_base metrics not present
+H4,transfer_case,,,,,,,,,,,,,,,,,PENDING_C4,transfer case not in scope

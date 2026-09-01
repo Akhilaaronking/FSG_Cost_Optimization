@@ -1,0 +1,77 @@
+{
+  "archive_size": 1,
+  "baseline_vector": [
+    312.02,
+    0.6507108
+  ],
+  "condition": "C4_base_no_rag",
+  "entries": [
+    {
+      "baseline_delta": {
+        "cost_eur": 133.14999999999998,
+        "cost_improvement_pct": 42.67354656752772,
+        "mass_improvement_pct": -25.38215133358782,
+        "mass_kg": -0.1651644
+      },
+      "candidate_id": "C4_base_no_rag_s0_t015",
+      "cost_eur": 178.87,
+      "mass_kg": 0.8158752,
+      "modifications": [
+        {
+          "baseline": "AL_7075_T6",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_002"
+        },
+        {
+          "baseline": "STEEL_S235",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_003"
+        },
+        {
+          "baseline": "STEEL_4130_CRMO",
+          "candidate": "STEEL_S235",
+          "field": "material_id",
+          "part_id": "PILOT_004"
+        },
+        {
+          "baseline": "POM_DELRIN",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_005"
+        },
+        {
+          "baseline": "TI_GRADE5",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_007"
+        },
+        {
+          "baseline": "CF_PLATE_3K",
+          "candidate": "AL_6061_T6",
+          "field": "material_id",
+          "part_id": "PILOT_008"
+        },
+        {
+          "baseline": "NYLON_PA6_FILAMENT",
+          "candidate": "NYLON_PA6",
+          "field": "material_id",
+          "part_id": "PILOT_010"
+        }
+      ],
+      "objective_vector": [
+        178.87,
+        0.8158752
+      ]
+    }
+  ],
+  "hypervolume": 0.0,
+  "normalized_hypervolume": 0.0,
+  "reference_point": [
+    374.424,
+    0.78085296
+  ],
+  "run_id": "sha256:623140f4382cd29e",
+  "seed": 0
+}
