@@ -144,3 +144,109 @@ SWEEP RESULT (2026-08-31, ~64 min wall-clock; artifacts in runs/ and results/)
   artefact of the C3 defect, not a fine-tuning result; see results/RUN_NOTES.md.
   C1, C2 and C5 results stand. The candidate-diversity ceiling (all generative
   runs exhaust ~11-16 distinct candidates << N=50) held as calibration predicted.
+
+
+################################################################################
+# A13 C4 agentic tool-loop
+# Date: 2026-09-01
+# Design: docs/A13_C4_AGENTIC_LOOP_DESIGN.md ; Status: docs/A13_C4_STATUS.md
+################################################################################
+
+CONTEXT
+  A12 covered C1/C2/C3/C5 and emitted H2/H3/H4 as PENDING_C4. A13 adds C4 -- the
+  full agentic tool-loop (thesis eq 10.30-10.35): fine-tuned LLM + RAG + a
+  deterministic loop that iterates on evaluator feedback over an EVOLVING working
+  state x_t, versus C1/C2/C3 which apply every proposal to the frozen baseline x0
+  independently. Reuses the A12 machinery unchanged (EqualBudgetLedger,
+  apply_proposal, ParetoArchive, events, RunOutcome, 11.19 contract).
+
+DECISIONS (user, LOCKED 2026-08-31 -- see design doc section 13)
+    Select policy   : archive_guided_v1 -- deterministic, seeded, NO extra LLM
+                      call (repair > explore/diversify > exploit corner). LLM-chosen
+                      selection is a future extension.
+    First backend   : C4_base -- Ollama llama3.1:8b + RAG + tools. Canonical C4
+                      (fine-tuned C3 backend) swaps in with zero loop changes once
+                      the C3 adapter defect (see A12 section) is fixed.
+    Convergence     : L = 10 look-back, epsilon_hv = 0.1 absolute HV, variant
+                      "delta". Frozen in run_config before any run; part of run_id.
+    Retry cap K     : 3 per selection episode; then Select() moves to a different
+                      part/intent. x_t never resets (bounded backtracking is a
+                      v1-future extension, decision 7).
+    Accept()        : feasible AND ParetoArchive.offer() status in
+                      {pareto_improving, non_dominated}. The non_dominated class IS
+                      the lateral move; no separate single-objective rule.
+    H3 ablation scope: 3-seed pilot per variant; full 10 seeds only if the pilot
+                      shows the expected ordering.
+
+DEVIATIONS FROM THE THESIS TEXT (small, documented, not silent)
+    11.18 status vocabulary  -> + COMPLETE_CONVERGED (eq 4.2 dHV_recent stop) for
+                                C4. Already added COMPLETE_SPACE_EXHAUSTED in A12.
+    eq 4.2 convergence test   -> stops on EITHER hv_plateau (max-min of HV over the
+                                last L evals < epsilon_hv, AT ANY LEVEL INCLUDING 0)
+                                OR archive_unchanged (archive membership identical
+                                across the last L evals). The earlier
+                                `HV > 0` guard let a zero-HV working state grind to
+                                the attempt cap (pilot seed 0: 591 calls / 61 min);
+                                removed. convergence_reason is recorded in
+                                metrics.json c4 block + RunOutcome.extra.
+    proposal_attempt_cap     -> C4 uses c4_attempt_cap(N) = max(150, 6*N) = 300 at
+                                N=50, NOT the 1500 generative cap. At ~5 s/LLM call
+                                1500 was a >2 h/seed ceiling for a non-functional
+                                loop. C1/C2/C3 keep 1500 -> committed A12 run
+                                identities are unaffected.
+    archive seeding          -> C4 archive is NOT seeded with the baseline as a
+                                scoring member (consistent with C1/C2/C3/C5 in the
+                                committed A12 sweep; deviates uniformly from 4.9's
+                                literal wording, which is what the paired
+                                C4-vs-C5 comparison needs).
+    C1-C6 full matrix        -> canonical C4 and C6 still not run. H2 (C4 vs C5) and
+                                a full H3 need a canonical C4 run; the CSV rows
+                                compute automatically when both metric sets exist.
+
+C4-BASE PILOT (2026-09-01, scripts/run_experiment.py, N=50, attempt cap 300,
+  Ollama llama3.1:8b + RAG; 3 seeds):
+    seed 0 : COMPLETE_CONVERGED hv_plateau@0 | n_eval 11 | HV 0.000 | best cost
+             178.33 EUR | lowest mass 0.7850 kg | accept 0.24 | 199 s
+    seed 1 : COMPLETE_CONVERGED hv_plateau   | n_eval 11 | HV 9.099 | best cost
+             179.01 EUR | lowest mass 0.6458 kg | accept 0.22 | 211 s
+    seed 2 : COMPLETE_CONVERGED hv_plateau   | n_eval 14 | HV 9.070 | best cost
+             179.23 EUR | lowest mass 0.6507 kg | accept 0.17 | 298 s
+  Funnel parse/schema/identifier/applicability all 1.00; hr_all 0.00 every seed.
+  Loop is mechanically sound (seeded selection, compounding x_t, ledger,
+  convergence). 2/3 seeds land at HV ~9.07-9.10 -- on par with the atomic C1/C2
+  results (A12 sweep HV 8.93-9.18); compounding did not beat the atomic reach on
+  this benchmark. Seed 0 drifts: compounding cost-cuts pushed aggregate mass to
+  0.785 kg, past the 1.2x reference bound 0.781 kg, so its whole front scores
+  HV 0. Genuine C4-base behaviour (weak base model, no backtracking), NOT a
+  harness defect; it is the per-seed variance eq 11.21 is built to capture, and a
+  weak/non-significant H2 for C4-base is a valid result (11.13).
+
+H3 ABLATION PILOT (2026-09-01, 3 seeds each; descriptive, no family correction)
+    no_rag        : 3x COMPLETE_CONVERGED | n_eval 11-18 | hr_all 0.00 x3 |
+                    HV 0 / 9.36 / 8.34. RAG removal did NOT raise hallucination
+                    (base model already hallucination-free -- the A12
+                    zero-hallucination baseline).
+    no_schema     : 3x ABORTED_BUDGET_UNREACHED | n_eval 0 | hr_all 1.00 x3 |
+                    HV 0 x3. NON-FUNCTIONAL: with format=<schema> removed,
+                    llama3.1:8b free-form output under the C4 prompt does not even
+                    PARSE as a proposal (parse_rate 0.0), 300 attempts x 3 seeds
+                    (~26.5 min/seed). Same class as C3. Recorded as a degenerate
+                    ablation, EXCLUDED from inferential H3 (11.18). "Schema
+                    enforcement is load-bearing for the base backend" now has a
+                    3/3 citation.
+    no_validator  : 3x COMPLETE_CONVERGED | n_eval 11 | hr_all 0.025 / 0.061 /
+                    0.00 | HV 0 / 9.10 / 8.44. identifier/applicability rate drops
+                    to 0.94-0.98; accepts dominated (accept rate up to 0.28-0.42).
+                    Expected H3 direction.
+  hypothesis_tests.csv (C4_base vs ablations):
+    HR_full < 0.05 (eq 10.39)            -> SUPPORTED  (HR_full = 0.0)
+    HR_full < min(HR_ablations) (10.38)  -> NOT_SUPPORTED: HR_no_rag is also 0.0,
+      the strict inequality fails on a tie at the floor. The base backend has no
+      headroom below zero hallucinations on this benchmark, exactly as H1's
+      hallucination axis was NOT_COMPUTABLE. no_schema correctly excluded.
+
+REPORTING BOUNDARY
+  A13 delivers the C4 loop and a C4-base pilot on the frozen B4 pilot benchmark.
+  It does NOT run canonical C4 (blocked on the C3 adapter), does NOT evaluate H2
+  (C4 vs C5) or a full H3, and does NOT implement C6. No result here establishes
+  C4-vs-C5 hypervolume superiority or final H2-H4 acceptance.
