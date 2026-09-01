@@ -477,6 +477,24 @@ def test_build_condition_summary_aggregates_by_condition():
     assert set(rows[0]) == set(CONDITION_SUMMARY_COLUMNS)
 
 
+def test_condition_summary_counts_converged_as_complete():
+    # C4 uses COMPLETE_CONVERGED (11.18 addition) -- it must count toward
+    # n_complete, not read as 0 completed for a cleanly converged sweep.
+    rows = build_condition_summary(
+        [
+            fake_metrics("C4_base", 0, hr=0.0, hv=9.0,
+                         terminal="COMPLETE_CONVERGED"),
+            fake_metrics("C4_base", 1, hr=0.0, hv=9.5,
+                         terminal="COMPLETE_CONVERGED"),
+            fake_metrics("C4_base", 2, hr=1.0, hv=0.0,
+                         terminal="ABORTED_BUDGET_UNREACHED"),
+        ]
+    )
+    c4 = next(r for r in rows if r["condition"] == "C4_base")
+    assert c4["n_seeds"] == 3
+    assert c4["n_complete"] == 2
+
+
 def test_hypothesis_tests_h1_underpowered_and_pending_rows():
     metrics_by_condition = {
         "C2": [

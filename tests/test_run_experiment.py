@@ -415,6 +415,11 @@ def test_sweep_runs_c4_base_end_to_end(tmp_path):
     notes = result["notes"]
     assert any("C4_base TOOL-LOOP" in n for n in notes)
 
+    # the per-condition table in RUN_NOTES.md lists C4_base, not just the
+    # fixed C1/C2/C3/C5 order (regression: it used to iterate CONDITION_ORDER)
+    run_notes = (tmp_path / "results" / "RUN_NOTES.md").read_text()
+    assert "| C4_base |" in run_notes
+
     hyp = list(
         __import__("csv").DictReader(
             (tmp_path / "results" / "hypothesis_tests.csv").open()

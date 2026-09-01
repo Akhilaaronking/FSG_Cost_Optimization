@@ -582,7 +582,10 @@ def findings(all_metrics: list[dict], blocked: list[dict]) -> list[str]:
 
 def _summary_block(all_metrics, by_condition, blocked, notes) -> list[str]:
     lines = ["", "=" * 72, "A12 SWEEP SUMMARY", "=" * 72]
-    for condition in CONDITION_ORDER:
+    # any condition actually present (incl. C4/C4_base/ablation labels),
+    # not just the fixed C1/C2/C3/C5 order -- so a run that folds in a C4
+    # condition still gets its row here.
+    for condition in _ordered(by_condition):
         group = by_condition.get(condition)
         if not group:
             continue
@@ -646,7 +649,7 @@ def write_run_notes(
         "| condition | seeds | terminal statuses | n_eval range | HV median | hr_all max |",
         "|---|---|---|---|---|---|",
     ]
-    for condition in CONDITION_ORDER:
+    for condition in _ordered(by_condition):
         group = by_condition.get(condition)
         if not group:
             continue

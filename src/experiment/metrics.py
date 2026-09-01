@@ -651,7 +651,11 @@ def build_condition_summary(metrics_list: list[dict]) -> list[dict]:
                     1
                     for g in group
                     if g["terminal_status"]
-                    in ("COMPLETE", "COMPLETE_SPACE_EXHAUSTED")
+                    in (
+                        "COMPLETE",
+                        "COMPLETE_SPACE_EXHAUSTED",
+                        "COMPLETE_CONVERGED",
+                    )
                 ),
                 "hv_median": hv["median"],
                 "hv_iqr": hv["iqr"],
